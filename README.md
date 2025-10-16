@@ -205,3 +205,4 @@ Devang Kankaria
 - Cricket data sourced from official ODI World Cup 2023 records
 - Built with Flask and Chart.js
 - Hosted on MongoDB Atlas
+
