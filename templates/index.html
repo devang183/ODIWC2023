@@ -1403,6 +1403,7 @@
                 <table class="innings-table">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Batsman</th>
                             <th>Dismissal</th>
                             <th>Runs</th>
@@ -1415,6 +1416,7 @@
                     <tbody>
                         ${battingStats.map(stat => `
                             <tr>
+                                <td style="color: #999; font-weight: 600;">${stat.Batting_Position || '-'}</td>
                                 <td class="player-name-cell">${stat.Batsman_Name}</td>
                                 <td class="dismissal-cell">${stat.Dismissal || 'Not Out'}</td>
                                 <td><strong>${stat.Runs || 0}</strong></td>

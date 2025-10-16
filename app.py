@@ -337,11 +337,11 @@ def get_match_scorecard(match_no):
         if not match:
             return jsonify({'error': 'Match not found'}), 404
 
-        # Get batting performances for this match
+        # Get batting performances for this match (sorted by batting position)
         batting_stats = list(batting_collection.find(
             {'Match_no': match_no},
             {'_id': 0}
-        ).sort([('Batsman_Name', 1)]))
+        ).sort([('Batting_Position', 1)]))
 
         # Get bowling performances for this match
         bowling_stats = list(bowling_collection.find(
