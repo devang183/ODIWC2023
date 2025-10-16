@@ -3,8 +3,6 @@ from flask_cors import CORS
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
-import pandas as pd
-from datetime import datetime
 import re
 
 # Initialize Flask app

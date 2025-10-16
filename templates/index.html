@@ -567,7 +567,10 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:5001/api';
+        // Use relative URL for API calls (works both locally and on Vercel)
+        const API_BASE = window.location.hostname === 'localhost'
+            ? 'http://localhost:5001/api'
+            : '/api';
         let battingChart = null;
         let bowlingChart = null;
 

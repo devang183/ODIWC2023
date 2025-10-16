@@ -147,3 +147,7 @@ Thumbs.db
 
 # CSV data files (optional - remove if you want to commit them)
 # *.csv
+
+# Vercel
+.vercel
+*.vercel.json~
