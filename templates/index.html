@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODI World Cup 2023 Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .search-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        tr.highlighted {
+            background: #fff3cd !important;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .player-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .player-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .player-info {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .search-input {
+                min-width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏏 ODI World Cup 2023 Dashboard</h1>
+            <p>Comprehensive Statistics & Analytics</p>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="Try: 'top batsmen', 'India matches', 'Virat Kohli stats'...">
+                <button class="btn" onclick="performSearch()">Search</button>
+            </div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalMatches">-</div>
+                <div class="stat-label">Total Matches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalPlayers">-</div>
+                <div class="stat-label">Total Players</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalRuns">-</div>
+                <div class="stat-label">Total Runs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalWickets">-</div>
+                <div class="stat-label">Total Wickets</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('players')">Players</div>
+            <div class="tab" onclick="switchTab('matches')">Matches</div>
+            <div class="tab" onclick="switchTab('batting')">Top Batsmen</div>
+            <div class="tab" onclick="switchTab('bowling')">Top Bowlers</div>
+        </div>
+
+        <div id="players" class="content-section active">
+            <h2>Players</h2>
+            <div class="filters">
+                <select id="teamFilter" onchange="filterPlayers()">
+                    <option value="">All Teams</option>
+                </select>
+                <select id="roleFilter" onchange="filterPlayers()">
+                    <option value="">All Roles</option>
+                    <!-- <option value="Batter">Batter</option> -->
+                    <option value="Opening Batter">Opening Batter</option>
+                    <option value="Top order Batter">Top order Batter</option>
+                    <option value="Middle order Batter">Middle order Batter</option>
+                    <option value="Wicketkeeper Batter">Wicketkeeper Batter</option>
+                    <option value="Allrounder">Allrounder</option>
+                    <option value="Batting Allrounder">Batting Allrounder</option>
+                    <option value="Bowling Allrounder">Bowling Allrounder</option>
+                    <option value="Bowler">Bowler</option>
+                </select>
+            </div>
+            <div id="playersContent"></div>
+        </div>
+
+        <div id="matches" class="content-section">
+            <h2>Match Schedule & Results</h2>
+            <div class="filters">
+                <select id="matchTeamFilter" onchange="filterMatches()">
+                    <option value="">All Teams</option>
+                </select>
+                <select id="venueFilter" onchange="filterMatches()">
+                    <option value="">All Venues</option>
+                </select>
+            </div>
+            <div class="table-container" id="matchesContent"></div>
+        </div>
+
+        <div id="batting" class="content-section">
+            <h2>Top Run Scorers</h2>
+            <div class="chart-container">
+                <canvas id="battingChart"></canvas>
+            </div>
+            <div class="table-container" id="battingContent"></div>
+        </div>
+
+        <div id="bowling" class="content-section">
+            <h2>Top Wicket Takers</h2>
+            <div class="chart-container">
+                <canvas id="bowlingChart"></canvas>
+            </div>
+            <div class="table-container" id="bowlingContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001/api';
+        let battingChart = null;
+        let bowlingChart = null;
+
+        // Initialize dashboard
+        async function init() {
+            await loadOverview();
+            await loadTeams();
+            await loadVenues();
+            await loadPlayers();
+            await loadMatches();
+            await loadTopBatsmen();
+            await loadTopBowlers();
+        }
+
+        async function loadOverview() {
+            try {
+                const response = await fetch(`${API_BASE}/stats/overview`);
+                const data = await response.json();
+                document.getElementById('totalMatches').textContent = data.total_matches;
+                document.getElementById('totalPlayers').textContent = data.total_players;
+                document.getElementById('totalRuns').textContent = data.total_runs.toLocaleString();
+                document.getElementById('totalWickets').textContent = data.total_wickets;
+            } catch (error) {
+                console.error('Error loading overview:', error);
+            }
+        }
+
+        async function loadTeams() {
+            try {
+                const response = await fetch(`${API_BASE}/teams`);
+                const teams = await response.json();
+                const teamFilter = document.getElementById('teamFilter');
+                const matchTeamFilter = document.getElementById('matchTeamFilter');
+                
+                teams.forEach(team => {
+                    teamFilter.innerHTML += `<option value="${team}">${team}</option>`;
+                    matchTeamFilter.innerHTML += `<option value="${team}">${team}</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading teams:', error);
+            }
+        }
+
+        async function loadVenues() {
+            try {
+                const response = await fetch(`${API_BASE}/venues`);
+                const venues = await response.json();
+                const venueFilter = document.getElementById('venueFilter');
+                
+                venues.forEach(venue => {
+                    venueFilter.innerHTML += `<option value="${venue}">${venue}</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading venues:', error);
+            }
+        }
+
+        async function loadPlayers() {
+            const team = document.getElementById('teamFilter').value;
+            const role = document.getElementById('roleFilter').value;
+            
+            try {
+                const params = new URLSearchParams();
+                if (team) params.append('team', team);
+                if (role) params.append('role', role);
+                
+                const response = await fetch(`${API_BASE}/players?${params}`);
+                const players = await response.json();
+                
+                const content = document.getElementById('playersContent');
+                content.innerHTML = players.map(player => `
+                    <div class="player-card">
+                        <div class="player-name">${player.player_name}</div>
+                        <div class="player-info">
+                            <strong>Team:</strong> ${player.team_name} | 
+                            <strong>Role:</strong> ${player.playingRole} | 
+                            <strong>Batting:</strong> ${player.battingStyle} | 
+                            <strong>Bowling:</strong> ${player.bowlingStyle || 'N/A'}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading players:', error);
+            }
+        }
+
+        async function loadMatches() {
+            const team = document.getElementById('matchTeamFilter').value;
+            const venue = document.getElementById('venueFilter').value;
+            
+            try {
+                const params = new URLSearchParams();
+                if (team) params.append('team', team);
+                if (venue) params.append('venue', venue);
+                
+                const response = await fetch(`${API_BASE}/matches?${params}`);
+                const matches = await response.json();
+                
+                const content = document.getElementById('matchesContent');
+                content.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Match #</th>
+                                <th>Date</th>
+                                <th>Venue</th>
+                                <th>Teams</th>
+                                <th>Winner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${matches.map(match => `
+                                <tr>
+                                    <td>${match.Match_no}</td>
+                                    <td>${match.Date}</td>
+                                    <td>${match.Venue}</td>
+                                    <td>${match.Team1} vs ${match.Team2}</td>
+                                    <td><strong>${match.Winner || 'TBD'}</strong></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                console.error('Error loading matches:', error);
+            }
+        }
+
+        async function loadTopBatsmen() {
+            try {
+                const response = await fetch(`${API_BASE}/batting/top?limit=10`);
+                const data = await response.json();
+                
+                // Create chart
+                const ctx = document.getElementById('battingChart');
+                if (battingChart) battingChart.destroy();
+                
+                battingChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(d => d.batsman),
+                        datasets: [{
+                            label: 'Total Runs',
+                            data: data.map(d => d.total_runs),
+                            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        onClick: (event, activeElements) => {
+                            if (activeElements.length > 0) {
+                                const index = activeElements[0].index;
+                                highlightBatsmanRow(index);
+                            }
+                        }
+                    }
+                });
+                
+                // Create table
+                const content = document.getElementById('battingContent');
+                content.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Batsman</th>
+                                <th>Runs</th>
+                                <th>Balls</th>
+                                <th>4s</th>
+                                <th>6s</th>
+                                <th>Strike Rate</th>
+                                <th>Matches</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map((player, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td><strong>${player.batsman}</strong></td>
+                                    <td>${player.total_runs}</td>
+                                    <td>${player.total_balls}</td>
+                                    <td>${player.total_4s}</td>
+                                    <td>${player.total_6s}</td>
+                                    <td>${player.strike_rate.toFixed(2)}</td>
+                                    <td>${player.matches}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                console.error('Error loading top batsmen:', error);
+            }
+        }
+
+        async function loadTopBowlers() {
+            try {
+                const response = await fetch(`${API_BASE}/bowling/top?limit=10`);
+                const data = await response.json();
+                
+                // Create chart
+                const ctx = document.getElementById('bowlingChart');
+                if (bowlingChart) bowlingChart.destroy();
+                
+                bowlingChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(d => d.bowler),
+                        datasets: [{
+                            label: 'Total Wickets',
+                            data: data.map(d => d.total_wickets),
+                            backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                            borderColor: 'rgba(118, 75, 162, 1)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        onClick: (event, activeElements) => {
+                            if (activeElements.length > 0) {
+                                const index = activeElements[0].index;
+                                highlightBowlerRow(index);
+                            }
+                        }
+                    }
+                });
+                
+                // Create table
+                const content = document.getElementById('bowlingContent');
+                content.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Bowler</th>
+                                <th>Wickets</th>
+                                <th>Runs</th>
+                                <th>Overs</th>
+                                <th>Economy</th>
+                                <th>Matches</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map((player, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td><strong>${player.bowler}</strong></td>
+                                    <td>${player.total_wickets}</td>
+                                    <td>${player.total_runs}</td>
+                                    <td>${player.total_overs.toFixed(1)}</td>
+                                    <td>${player.economy.toFixed(2)}</td>
+                                    <td>${player.matches}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                console.error('Error loading top bowlers:', error);
+            }
+        }
+
+        async function performSearch() {
+            const query = document.getElementById('searchInput').value;
+            if (!query) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+                const results = await response.json();
+                
+                // Show results in appropriate sections
+                if (results.players && results.players.length > 0) {
+                    switchTab('players');
+                    displaySearchResults(results);
+                } else if (results.matches && results.matches.length > 0) {
+                    switchTab('matches');
+                    displaySearchResults(results);
+                } else {
+                    alert('No results found. Try different keywords like "India", "batsmen", "bowlers"');
+                }
+            } catch (error) {
+                console.error('Error performing search:', error);
+                alert('Search error. Please try again.');
+            }
+        }
+
+        function displaySearchResults(results) {
+            if (results.players && results.players.length > 0) {
+                const content = document.getElementById('playersContent');
+                content.innerHTML = '<h3>Search Results</h3>' + results.players.map(player => {
+                    if (player.player_name) {
+                        return `
+                            <div class="player-card">
+                                <div class="player-name">${player.player_name}</div>
+                                <div class="player-info">
+                                    <strong>Team:</strong> ${player.team_name} | 
+                                    <strong>Role:</strong> ${player.playingRole}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div class="player-card">
+                                <div class="player-name">${player._id}</div>
+                                <div class="player-info">
+                                    ${player.total_runs ? `<strong>Runs:</strong> ${player.total_runs}` : ''}
+                                    ${player.total_wickets ? `<strong>Wickets:</strong> ${player.total_wickets}` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }).join('');
+            }
+        }
+
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function filterPlayers() {
+            loadPlayers();
+        }
+
+        function filterMatches() {
+            loadMatches();
+        }
+
+        function highlightBatsmanRow(index) {
+            // Remove previous highlights
+            document.querySelectorAll('#battingContent tbody tr').forEach(row => {
+                row.classList.remove('highlighted');
+            });
+
+            // Highlight the selected row (skip header, so index + 1)
+            const rows = document.querySelectorAll('#battingContent tbody tr');
+            if (rows[index]) {
+                rows[index].classList.add('highlighted');
+                // Scroll to the row smoothly
+                rows[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function highlightBowlerRow(index) {
+            // Remove previous highlights
+            document.querySelectorAll('#bowlingContent tbody tr').forEach(row => {
+                row.classList.remove('highlighted');
+            });
+
+            // Highlight the selected row (skip header, so index + 1)
+            const rows = document.querySelectorAll('#bowlingContent tbody tr');
+            if (rows[index]) {
+                rows[index].classList.add('highlighted');
+                // Scroll to the row smoothly
+                rows[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Handle Enter key in search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>
