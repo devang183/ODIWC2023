@@ -1320,8 +1320,9 @@
         function displayMatchScorecard(data, winner) {
             const container = document.getElementById('matchScorecardContent');
             const match = data.match;
-            const team1 = match.Team1.trim();
-            const team2 = match.Team2.trim();
+            // Use team names from API (which are ordered by innings)
+            const team1 = (data.team1_name || match.Team1).trim();
+            const team2 = (data.team2_name || match.Team2).trim();
             const winningTeam = winner.trim();
 
             // Calculate team totals

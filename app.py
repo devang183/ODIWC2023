@@ -386,13 +386,31 @@ def get_match_scorecard(match_no):
         print(f"Found {len(team1_batting)} batting, {len(team1_bowling)} bowling for Team1")
         print(f"Found {len(team2_batting)} batting, {len(team2_bowling)} bowling for Team2")
 
-        return jsonify({
-            'match': match,
-            'team1_batting': team1_batting,
-            'team2_batting': team2_batting,
-            'team1_bowling': team1_bowling,
-            'team2_bowling': team2_bowling
-        })
+        # Determine innings order based on number of batsmen
+        # Team that batted first typically has more batsmen recorded (often all out)
+        # Team that chased may have fewer batsmen (won with wickets in hand)
+        if len(team2_batting) > len(team1_batting):
+            # Swap teams so first innings is shown first
+            print("Swapping team order - Team2 batted first")
+            return jsonify({
+                'match': match,
+                'team1_batting': team2_batting,  # First innings
+                'team2_batting': team1_batting,  # Second innings
+                'team1_bowling': team2_bowling,
+                'team2_bowling': team1_bowling,
+                'team1_name': match_team2,  # Actual team name for first innings
+                'team2_name': match_team1   # Actual team name for second innings
+            })
+        else:
+            return jsonify({
+                'match': match,
+                'team1_batting': team1_batting,
+                'team2_batting': team2_batting,
+                'team1_bowling': team1_bowling,
+                'team2_bowling': team2_bowling,
+                'team1_name': match_team1,
+                'team2_name': match_team2
+            })
     except Exception as e:
         print(f"Error fetching match scorecard: {str(e)}")
         return jsonify({'error': str(e)}), 500
