@@ -266,5 +266,58 @@ def get_venues():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/player/performance/<player_name>')
+def get_player_performance(player_name):
+    """Get match-wise performance for a specific player"""
+    try:
+        # Get batting performance
+        batting_stats = list(batting_collection.find(
+            {'Batsman_Name': player_name},
+            {'_id': 0}
+        ).sort('Match_no', 1))
+
+        # Get bowling performance
+        bowling_stats = list(bowling_collection.find(
+            {'Bowler_Name': player_name},
+            {'_id': 0}
+        ).sort('Match_no', 1))
+
+        # Get match details for context
+        match_numbers = set()
+        for stat in batting_stats:
+            if 'Match_no' in stat:
+                match_numbers.add(stat['Match_no'])
+        for stat in bowling_stats:
+            if 'Match_no' in stat:
+                match_numbers.add(stat['Match_no'])
+
+        # Fetch match details
+        matches = {}
+        if match_numbers:
+            match_docs = matches_collection.find(
+                {'Match_no': {'$in': list(match_numbers)}},
+                {'_id': 0}
+            )
+            for match in match_docs:
+                matches[match['Match_no']] = match
+
+        # Combine batting stats with match info
+        for stat in batting_stats:
+            if stat.get('Match_no') in matches:
+                stat['match_info'] = matches[stat['Match_no']]
+
+        # Combine bowling stats with match info
+        for stat in bowling_stats:
+            if stat.get('Match_no') in matches:
+                stat['match_info'] = matches[stat['Match_no']]
+
+        return jsonify({
+            'player_name': player_name,
+            'batting': batting_stats,
+            'bowling': bowling_stats
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

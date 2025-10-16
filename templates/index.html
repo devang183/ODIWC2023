@@ -229,6 +229,14 @@
             border-radius: 10px;
             margin-bottom: 15px;
             border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .player-card:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
         }
 
         .player-name {
@@ -241,6 +249,189 @@
         .player-info {
             color: #666;
             font-size: 0.9em;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 20px;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        .modal-header .player-meta {
+            font-size: 0.9em;
+            opacity: 0.95;
+            margin-top: 5px;
+        }
+
+        .close {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            line-height: 1;
+        }
+
+        .close:hover {
+            transform: scale(1.2);
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(85vh - 100px);
+        }
+
+        .performance-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .performance-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .performance-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .performance-section {
+            display: none;
+        }
+
+        .performance-section.active {
+            display: block;
+        }
+
+        .match-performance {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .match-performance:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .match-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .match-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .stats-grid-modal {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .stat-item .label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-item .value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 5px;
+        }
+
+        .no-performance {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
         }
 
         @media (max-width: 768px) {
@@ -354,6 +545,27 @@
         </div>
     </div>
 
+    <!-- Player Performance Modal -->
+    <div id="playerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalPlayerName"></h2>
+                    <div class="player-meta" id="modalPlayerMeta"></div>
+                </div>
+                <span class="close" onclick="closePlayerModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="performance-tabs">
+                    <button class="performance-tab active" onclick="switchPerformanceTab('batting')">Batting</button>
+                    <button class="performance-tab" onclick="switchPerformanceTab('bowling')">Bowling</button>
+                </div>
+                <div id="batting-performance" class="performance-section active"></div>
+                <div id="bowling-performance" class="performance-section"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_BASE = 'http://localhost:5001/api';
         let battingChart = null;
@@ -427,12 +639,12 @@
                 
                 const content = document.getElementById('playersContent');
                 content.innerHTML = players.map(player => `
-                    <div class="player-card">
+                    <div class="player-card" onclick="openPlayerModal('${player.player_name}', '${player.team_name}', '${player.playingRole}')">
                         <div class="player-name">${player.player_name}</div>
                         <div class="player-info">
-                            <strong>Team:</strong> ${player.team_name} | 
-                            <strong>Role:</strong> ${player.playingRole} | 
-                            <strong>Batting:</strong> ${player.battingStyle} | 
+                            <strong>Team:</strong> ${player.team_name} |
+                            <strong>Role:</strong> ${player.playingRole} |
+                            <strong>Batting:</strong> ${player.battingStyle} |
                             <strong>Bowling:</strong> ${player.bowlingStyle || 'N/A'}
                         </div>
                     </div>
@@ -734,6 +946,165 @@
                 rows[index].classList.add('highlighted');
                 // Scroll to the row smoothly
                 rows[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Modal Functions
+        async function openPlayerModal(playerName, team, role) {
+            try {
+                // Set player info in modal header
+                document.getElementById('modalPlayerName').textContent = playerName;
+                document.getElementById('modalPlayerMeta').textContent = `${team} • ${role}`;
+
+                // Show loading state
+                document.getElementById('batting-performance').innerHTML = '<div class="loading">Loading batting performance...</div>';
+                document.getElementById('bowling-performance').innerHTML = '<div class="loading">Loading bowling performance...</div>';
+
+                // Open modal
+                document.getElementById('playerModal').classList.add('active');
+
+                // Fetch player performance
+                const response = await fetch(`${API_BASE}/player/performance/${encodeURIComponent(playerName)}`);
+                const data = await response.json();
+
+                // Display batting performance
+                displayBattingPerformance(data.batting);
+
+                // Display bowling performance
+                displayBowlingPerformance(data.bowling);
+
+            } catch (error) {
+                console.error('Error loading player performance:', error);
+                document.getElementById('batting-performance').innerHTML = '<div class="no-performance">Error loading performance data</div>';
+                document.getElementById('bowling-performance').innerHTML = '<div class="no-performance">Error loading performance data</div>';
+            }
+        }
+
+        function displayBattingPerformance(battingStats) {
+            const container = document.getElementById('batting-performance');
+
+            if (!battingStats || battingStats.length === 0) {
+                container.innerHTML = '<div class="no-performance">No batting records found for this player</div>';
+                return;
+            }
+
+            container.innerHTML = battingStats.map(stat => {
+                const matchInfo = stat.match_info || {};
+                const teams = matchInfo.Team1 && matchInfo.Team2
+                    ? `${matchInfo.Team1.trim()} vs ${matchInfo.Team2.trim()}`
+                    : 'Match details unavailable';
+
+                return `
+                    <div class="match-performance">
+                        <div class="match-header">
+                            <div class="match-title">Match ${stat.Match_no || 'N/A'}: ${teams}</div>
+                            <div class="match-date">${matchInfo.Date || 'Date unavailable'} • ${matchInfo.Venue || 'Venue unavailable'}</div>
+                        </div>
+                        <div class="stats-grid-modal">
+                            <div class="stat-item">
+                                <div class="label">Runs</div>
+                                <div class="value">${stat.Runs || 0}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">Balls</div>
+                                <div class="value">${stat.Balls || 0}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">4s</div>
+                                <div class="value">${stat['4s'] || 0}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">6s</div>
+                                <div class="value">${stat['6s'] || 0}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">Strike Rate</div>
+                                <div class="value">${stat.Balls > 0 ? ((stat.Runs / stat.Balls) * 100).toFixed(2) : '0.00'}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">Dismissal</div>
+                                <div class="value" style="font-size: 0.9em;">${stat.Dismissal || 'Not Out'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function displayBowlingPerformance(bowlingStats) {
+            const container = document.getElementById('bowling-performance');
+
+            if (!bowlingStats || bowlingStats.length === 0) {
+                container.innerHTML = '<div class="no-performance">No bowling records found for this player</div>';
+                return;
+            }
+
+            container.innerHTML = bowlingStats.map(stat => {
+                const matchInfo = stat.match_info || {};
+                const teams = matchInfo.Team1 && matchInfo.Team2
+                    ? `${matchInfo.Team1.trim()} vs ${matchInfo.Team2.trim()}`
+                    : 'Match details unavailable';
+
+                return `
+                    <div class="match-performance">
+                        <div class="match-header">
+                            <div class="match-title">Match ${stat.Match_no || 'N/A'}: ${teams}</div>
+                            <div class="match-date">${matchInfo.Date || 'Date unavailable'} • ${matchInfo.Venue || 'Venue unavailable'}</div>
+                        </div>
+                        <div class="stats-grid-modal">
+                            <div class="stat-item">
+                                <div class="label">Wickets</div>
+                                <div class="value">${stat.Wickets || 0}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">Runs</div>
+                                <div class="value">${stat.Runs || 0}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">Overs</div>
+                                <div class="value">${stat.Overs ? stat.Overs.toFixed(1) : '0.0'}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">Maidens</div>
+                                <div class="value">${stat.Maidens || 0}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">Economy</div>
+                                <div class="value">${stat.Overs > 0 ? (stat.Runs / stat.Overs).toFixed(2) : '0.00'}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">Dots</div>
+                                <div class="value">${stat.Dots || 0}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function closePlayerModal() {
+            document.getElementById('playerModal').classList.remove('active');
+        }
+
+        function switchPerformanceTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.performance-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update content sections
+            document.querySelectorAll('.performance-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-performance`).classList.add('active');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('playerModal');
+            if (event.target === modal) {
+                closePlayerModal();
             }
         }
 
