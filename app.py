@@ -264,10 +264,16 @@ def get_venues():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/player/performance/<player_name>')
+@app.route('/api/player/performance/<path:player_name>')
 def get_player_performance(player_name):
     """Get match-wise performance for a specific player"""
     try:
+        # URL decode the player name (handles spaces and special characters)
+        from urllib.parse import unquote
+        player_name = unquote(player_name)
+
+        print(f"Fetching performance for player: {player_name}")
+
         # Get batting performance
         batting_stats = list(batting_collection.find(
             {'Batsman_Name': player_name},
@@ -279,6 +285,8 @@ def get_player_performance(player_name):
             {'Bowler_Name': player_name},
             {'_id': 0}
         ).sort('Match_no', 1))
+
+        print(f"Found {len(batting_stats)} batting records and {len(bowling_stats)} bowling records")
 
         # Get match details for context
         match_numbers = set()

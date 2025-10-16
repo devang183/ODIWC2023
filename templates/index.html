@@ -967,8 +967,22 @@
                 document.getElementById('playerModal').classList.add('active');
 
                 // Fetch player performance
-                const response = await fetch(`${API_BASE}/player/performance/${encodeURIComponent(playerName)}`);
+                const url = `${API_BASE}/player/performance/${encodeURIComponent(playerName)}`;
+                console.log('Fetching player data from:', url);
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
+                console.log('Received player data:', data);
+
+                // Check if there's an error in the response
+                if (data.error) {
+                    throw new Error(data.error);
+                }
 
                 // Display batting performance
                 displayBattingPerformance(data.batting);
@@ -978,8 +992,9 @@
 
             } catch (error) {
                 console.error('Error loading player performance:', error);
-                document.getElementById('batting-performance').innerHTML = '<div class="no-performance">Error loading performance data</div>';
-                document.getElementById('bowling-performance').innerHTML = '<div class="no-performance">Error loading performance data</div>';
+                const errorMsg = `<div class="no-performance">Error: ${error.message}<br>Please check console for details</div>`;
+                document.getElementById('batting-performance').innerHTML = errorMsg;
+                document.getElementById('bowling-performance').innerHTML = errorMsg;
             }
         }
 
