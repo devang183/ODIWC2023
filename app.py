@@ -349,24 +349,21 @@ def get_match_scorecard(match_no):
             {'_id': 0}
         ).sort([('Bowler_Name', 1)]))
 
-        # Group batting stats by team
+        # Group batting stats by team using Team_Innings field
         team1_batting = []
         team2_batting = []
 
+        match_team1 = match.get('Team1', '').strip()
+        match_team2 = match.get('Team2', '').strip()
+
         for stat in batting_stats:
-            batsman_name = stat.get('Batsman_Name', '')
-            # Find player's team
-            player = players_collection.find_one({'player_name': batsman_name}, {'team_name': 1, '_id': 0})
+            team_innings = stat.get('Team_Innings', '').strip()
 
-            if player:
-                team_name = player.get('team_name', '').strip()
-                match_team1 = match.get('Team1', '').strip()
-                match_team2 = match.get('Team2', '').strip()
-
-                if team_name == match_team1 or match_team1.find(team_name) >= 0 or team_name.find(match_team1) >= 0:
-                    team1_batting.append(stat)
-                else:
-                    team2_batting.append(stat)
+            # Match team innings to Team1 or Team2
+            if team_innings == match_team1 or match_team1.find(team_innings) >= 0 or team_innings.find(match_team1) >= 0:
+                team1_batting.append(stat)
+            elif team_innings == match_team2 or match_team2.find(team_innings) >= 0 or team_innings.find(match_team2) >= 0:
+                team2_batting.append(stat)
 
         # Group bowling stats by team
         team1_bowling = []
@@ -374,17 +371,16 @@ def get_match_scorecard(match_no):
 
         for stat in bowling_stats:
             bowler_name = stat.get('Bowler_Name', '')
-            # Find player's team
+            # Find player's team from players collection
             player = players_collection.find_one({'player_name': bowler_name}, {'team_name': 1, '_id': 0})
 
             if player:
                 team_name = player.get('team_name', '').strip()
-                match_team1 = match.get('Team1', '').strip()
-                match_team2 = match.get('Team2', '').strip()
 
+                # Match to Team1 or Team2
                 if team_name == match_team1 or match_team1.find(team_name) >= 0 or team_name.find(match_team1) >= 0:
                     team1_bowling.append(stat)
-                else:
+                elif team_name == match_team2 or match_team2.find(team_name) >= 0 or team_name.find(match_team2) >= 0:
                     team2_bowling.append(stat)
 
         print(f"Found {len(team1_batting)} batting, {len(team1_bowling)} bowling for Team1")
