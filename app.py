@@ -325,5 +325,81 @@ def get_player_performance(player_name):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/match/scorecard/<int:match_no>')
+def get_match_scorecard(match_no):
+    """Get detailed scorecard for a specific match"""
+    try:
+        print(f"Fetching scorecard for match: {match_no}")
+
+        # Get match details
+        match = matches_collection.find_one({'Match_no': match_no}, {'_id': 0})
+
+        if not match:
+            return jsonify({'error': 'Match not found'}), 404
+
+        # Get batting performances for this match
+        batting_stats = list(batting_collection.find(
+            {'Match_no': match_no},
+            {'_id': 0}
+        ).sort([('Batsman_Name', 1)]))
+
+        # Get bowling performances for this match
+        bowling_stats = list(bowling_collection.find(
+            {'Match_no': match_no},
+            {'_id': 0}
+        ).sort([('Bowler_Name', 1)]))
+
+        # Group batting stats by team
+        team1_batting = []
+        team2_batting = []
+
+        for stat in batting_stats:
+            batsman_name = stat.get('Batsman_Name', '')
+            # Find player's team
+            player = players_collection.find_one({'player_name': batsman_name}, {'team_name': 1, '_id': 0})
+
+            if player:
+                team_name = player.get('team_name', '').strip()
+                match_team1 = match.get('Team1', '').strip()
+                match_team2 = match.get('Team2', '').strip()
+
+                if team_name == match_team1 or match_team1.find(team_name) >= 0 or team_name.find(match_team1) >= 0:
+                    team1_batting.append(stat)
+                else:
+                    team2_batting.append(stat)
+
+        # Group bowling stats by team
+        team1_bowling = []
+        team2_bowling = []
+
+        for stat in bowling_stats:
+            bowler_name = stat.get('Bowler_Name', '')
+            # Find player's team
+            player = players_collection.find_one({'player_name': bowler_name}, {'team_name': 1, '_id': 0})
+
+            if player:
+                team_name = player.get('team_name', '').strip()
+                match_team1 = match.get('Team1', '').strip()
+                match_team2 = match.get('Team2', '').strip()
+
+                if team_name == match_team1 or match_team1.find(team_name) >= 0 or team_name.find(match_team1) >= 0:
+                    team1_bowling.append(stat)
+                else:
+                    team2_bowling.append(stat)
+
+        print(f"Found {len(team1_batting)} batting, {len(team1_bowling)} bowling for Team1")
+        print(f"Found {len(team2_batting)} batting, {len(team2_bowling)} bowling for Team2")
+
+        return jsonify({
+            'match': match,
+            'team1_batting': team1_batting,
+            'team2_batting': team2_batting,
+            'team1_bowling': team1_bowling,
+            'team2_bowling': team2_bowling
+        })
+    except Exception as e:
+        print(f"Error fetching match scorecard: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

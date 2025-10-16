@@ -434,6 +434,149 @@
             font-style: italic;
         }
 
+        /* Match Scorecard Styles */
+        .match-row {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .match-row:hover {
+            background: #f0f0f0 !important;
+            transform: scale(1.01);
+        }
+
+        .scorecard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .scorecard-title {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .scorecard-meta {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .scorecard-section {
+            margin-bottom: 30px;
+        }
+
+        .scorecard-section h3 {
+            font-size: 1.4em;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .team-score {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .team-score.winner {
+            border-left-color: #28a745;
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+        }
+
+        .team-name-header {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .team-name-header.winner::after {
+            content: " 🏆";
+        }
+
+        .score-display {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .innings-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .innings-table th {
+            background: #f5f5f5;
+            color: #333;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .innings-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .player-name-cell {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .dismissal-cell {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .bowler-figures {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .best-figures {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            color: #667eea;
+        }
+
+        .match-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.85em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -566,6 +709,22 @@
         </div>
     </div>
 
+    <!-- Match Scorecard Modal -->
+    <div id="matchModal" class="modal">
+        <div class="modal-content">
+            <div class="scorecard-header">
+                <div>
+                    <div class="scorecard-title" id="modalMatchTitle"></div>
+                    <div class="scorecard-meta" id="modalMatchMeta"></div>
+                </div>
+                <span class="close" onclick="closeMatchModal()" style="position: absolute; right: 30px; top: 30px;">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="matchScorecardContent"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Use relative URL for API calls (works both locally and on Vercel)
         const API_BASE = window.location.hostname === 'localhost'
@@ -683,7 +842,7 @@
                         </thead>
                         <tbody>
                             ${matches.map(match => `
-                                <tr>
+                                <tr class="match-row" onclick="openMatchModal(${match.Match_no}, '${match.Team1}', '${match.Team2}', '${match.Date}', '${match.Venue}', '${match.Winner || ''}')">
                                     <td>${match.Match_no}</td>
                                     <td>${match.Date}</td>
                                     <td>${match.Venue}</td>
@@ -1118,11 +1277,220 @@
             document.getElementById(`${tabName}-performance`).classList.add('active');
         }
 
+        // Match Modal Functions
+        async function openMatchModal(matchNo, team1, team2, date, venue, winner) {
+            try {
+                // Set match info in modal header
+                document.getElementById('modalMatchTitle').textContent = `Match ${matchNo}: ${team1.trim()} vs ${team2.trim()}`;
+                document.getElementById('modalMatchMeta').textContent = `${date} • ${venue}`;
+
+                // Show loading state
+                document.getElementById('matchScorecardContent').innerHTML = '<div class="loading">Loading match scorecard...</div>';
+
+                // Open modal
+                document.getElementById('matchModal').classList.add('active');
+
+                // Fetch match scorecard
+                const url = `${API_BASE}/match/scorecard/${matchNo}`;
+                console.log('Fetching match scorecard from:', url);
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Received match data:', data);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Display match scorecard
+                displayMatchScorecard(data, winner);
+
+            } catch (error) {
+                console.error('Error loading match scorecard:', error);
+                document.getElementById('matchScorecardContent').innerHTML =
+                    `<div class="no-performance">Error: ${error.message}<br>Please check console for details</div>`;
+            }
+        }
+
+        function displayMatchScorecard(data, winner) {
+            const container = document.getElementById('matchScorecardContent');
+            const match = data.match;
+            const team1 = match.Team1.trim();
+            const team2 = match.Team2.trim();
+            const winningTeam = winner.trim();
+
+            // Calculate team totals
+            const team1Total = calculateTeamTotal(data.team1_batting);
+            const team2Total = calculateTeamTotal(data.team2_batting);
+
+            let html = `
+                <div class="scorecard-section">
+                    <h3>Match Summary</h3>
+                    <div class="match-info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Match Number</div>
+                            <div class="info-value">${match.Match_no}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Date</div>
+                            <div class="info-value">${match.Date}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Venue</div>
+                            <div class="info-value">${match.Venue}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Winner</div>
+                            <div class="info-value">${winningTeam || 'TBD'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team 1 Scorecard -->
+                <div class="scorecard-section">
+                    <div class="team-score ${winningTeam === team1 ? 'winner' : ''}">
+                        <h3 class="team-name-header ${winningTeam === team1 ? 'winner' : ''}">${team1}</h3>
+                        <div class="score-display">${team1Total.runs}/${team1Total.wickets} (${team1Total.balls} balls)</div>
+
+                        ${displayBattingCard(data.team1_batting, 'Team 1')}
+                        ${displayBowlingCard(data.team2_bowling, 'Team 2 Bowling')}
+                    </div>
+                </div>
+
+                <!-- Team 2 Scorecard -->
+                <div class="scorecard-section">
+                    <div class="team-score ${winningTeam === team2 ? 'winner' : ''}">
+                        <h3 class="team-name-header ${winningTeam === team2 ? 'winner' : ''}">${team2}</h3>
+                        <div class="score-display">${team2Total.runs}/${team2Total.wickets} (${team2Total.balls} balls)</div>
+
+                        ${displayBattingCard(data.team2_batting, 'Team 2')}
+                        ${displayBowlingCard(data.team1_bowling, 'Team 1 Bowling')}
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function calculateTeamTotal(battingStats) {
+            let totalRuns = 0;
+            let totalWickets = 0;
+            let totalBalls = 0;
+
+            battingStats.forEach(stat => {
+                totalRuns += stat.Runs || 0;
+                totalBalls += stat.Balls || 0;
+                if (stat.Dismissal && stat.Dismissal !== 'not out' && stat.Dismissal !== 'Not Out') {
+                    totalWickets++;
+                }
+            });
+
+            return { runs: totalRuns, wickets: totalWickets, balls: totalBalls };
+        }
+
+        function displayBattingCard(battingStats, teamName) {
+            if (!battingStats || battingStats.length === 0) {
+                return '<p class="no-performance">No batting data available</p>';
+            }
+
+            return `
+                <h4 style="margin-top: 20px; color: #666;">Batting</h4>
+                <table class="innings-table">
+                    <thead>
+                        <tr>
+                            <th>Batsman</th>
+                            <th>Dismissal</th>
+                            <th>Runs</th>
+                            <th>Balls</th>
+                            <th>4s</th>
+                            <th>6s</th>
+                            <th>SR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${battingStats.map(stat => `
+                            <tr>
+                                <td class="player-name-cell">${stat.Batsman_Name}</td>
+                                <td class="dismissal-cell">${stat.Dismissal || 'Not Out'}</td>
+                                <td><strong>${stat.Runs || 0}</strong></td>
+                                <td>${stat.Balls || 0}</td>
+                                <td>${stat['4s'] || 0}</td>
+                                <td>${stat['6s'] || 0}</td>
+                                <td>${stat.Balls > 0 ? ((stat.Runs / stat.Balls) * 100).toFixed(2) : '0.00'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function displayBowlingCard(bowlingStats, teamName) {
+            if (!bowlingStats || bowlingStats.length === 0) {
+                return '<p class="no-performance">No bowling data available</p>';
+            }
+
+            // Find best bowling figures
+            let bestBowler = bowlingStats.reduce((best, current) => {
+                return (current.Wickets || 0) > (best.Wickets || 0) ? current : best;
+            }, bowlingStats[0]);
+
+            return `
+                <h4 style="margin-top: 20px; color: #666;">Bowling</h4>
+                <table class="innings-table">
+                    <thead>
+                        <tr>
+                            <th>Bowler</th>
+                            <th>Overs</th>
+                            <th>Maidens</th>
+                            <th>Runs</th>
+                            <th>Wickets</th>
+                            <th>Economy</th>
+                            <th>Dots</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${bowlingStats.map(stat => {
+                            const isBest = stat.Bowler_Name === bestBowler.Bowler_Name && stat.Wickets > 0;
+                            return `
+                                <tr>
+                                    <td class="player-name-cell">${stat.Bowler_Name}</td>
+                                    <td>${stat.Overs ? stat.Overs.toFixed(1) : '0.0'}</td>
+                                    <td>${stat.Maidens || 0}</td>
+                                    <td>${stat.Runs || 0}</td>
+                                    <td>
+                                        <span class="bowler-figures ${isBest ? 'best-figures' : ''}">
+                                            ${stat.Wickets || 0}
+                                        </span>
+                                    </td>
+                                    <td>${stat.Overs > 0 ? (stat.Runs / stat.Overs).toFixed(2) : '0.00'}</td>
+                                    <td>${stat.Dots || 0}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function closeMatchModal() {
+            document.getElementById('matchModal').classList.remove('active');
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('playerModal');
-            if (event.target === modal) {
+            const playerModal = document.getElementById('playerModal');
+            const matchModal = document.getElementById('matchModal');
+
+            if (event.target === playerModal) {
                 closePlayerModal();
+            }
+            if (event.target === matchModal) {
+                closeMatchModal();
             }
         }
 
