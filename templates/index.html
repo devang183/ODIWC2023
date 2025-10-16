@@ -1036,10 +1036,10 @@
                 content.innerHTML = '<h3>Search Results</h3>' + results.players.map(player => {
                     if (player.player_name) {
                         return `
-                            <div class="player-card">
+                            <div class="player-card" onclick="openPlayerModal('${player.player_name}', '${player.team_name}', '${player.playingRole}')">
                                 <div class="player-name">${player.player_name}</div>
                                 <div class="player-info">
-                                    <strong>Team:</strong> ${player.team_name} | 
+                                    <strong>Team:</strong> ${player.team_name} |
                                     <strong>Role:</strong> ${player.playingRole}
                                 </div>
                             </div>
@@ -1063,9 +1063,12 @@
             // Update tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
+                // Highlight the tab that matches the target section
+                if (tab.textContent.toLowerCase().includes(tabName.toLowerCase())) {
+                    tab.classList.add('active');
+                }
             });
-            event.target.classList.add('active');
-            
+
             // Update content sections
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
