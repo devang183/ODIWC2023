@@ -48,15 +48,17 @@ This guide will help you deploy your ODI World Cup 2023 Dashboard to Vercel.
    - **Build Command**: (leave empty)
    - **Output Directory**: (leave empty)
 
-6. **Add Environment Variable**:
+6. **Add Environment Variable** (CRITICAL STEP):
    - Click **"Environment Variables"**
+   - Click **"Add New"**
    - Add variable:
-     - **Name**: `MONGO_URI`
-     - **Value**: Your MongoDB connection string from `.env` file
+     - **Key**: `MONGO_URI`
+     - **Value**: Paste your MongoDB connection string from `.env` file
      ```
      mongodb+srv://kankariadevang:FRg8Euj7xssSKpob@devangdb.2ckz3bw.mongodb.net/?retryWrites=true&w=majority&appName=devangDB
      ```
-   - Click **"Add"**
+     - **Environments**: Select **Production**, **Preview**, and **Development** (all three)
+   - Click **"Save"**
 
 7. Click **"Deploy"**
 8. Wait for deployment to complete (usually 1-2 minutes)
