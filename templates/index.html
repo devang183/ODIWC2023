@@ -577,6 +577,174 @@
             color: #333;
         }
 
+        /* Best Moments Styles */
+        .moments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .moment-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .moment-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .moment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .moment-card.century::before {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .moment-card.fifty::before {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .moment-card.five_wickets::before,
+        .moment-card.four_wickets::before {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .moment-card.big_hitting::before {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .moment-card.explosive::before {
+            background: linear-gradient(135deg, #ff9a56 0%, #ff4d4d 100%);
+        }
+
+        .moment-card.economical::before {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .moment-type-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .moment-type-badge.century {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .moment-type-badge.fifty {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .moment-type-badge.five_wickets,
+        .moment-type-badge.four_wickets {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .moment-type-badge.big_hitting {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .moment-type-badge.explosive {
+            background: linear-gradient(135deg, #ff9a56 0%, #ff4d4d 100%);
+            color: white;
+        }
+
+        .moment-type-badge.economical {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .moment-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .moment-description {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .moment-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .moment-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .moment-meta-item strong {
+            color: #333;
+        }
+
+        .moment-stats {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .moment-stat {
+            background: #f9f9f9;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .moment-stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .moment-stat-label {
+            font-size: 0.75em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -592,6 +760,10 @@
 
             .chart-container {
                 height: 300px;
+            }
+
+            .moments-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -634,6 +806,7 @@
             <div class="tab" onclick="switchTab('matches')">Matches</div>
             <div class="tab" onclick="switchTab('batting')">Top Batsmen</div>
             <div class="tab" onclick="switchTab('bowling')">Top Bowlers</div>
+            <div class="tab" onclick="switchTab('moments')">Best Moments</div>
         </div>
 
         <div id="players" class="content-section active">
@@ -686,6 +859,22 @@
             </div>
             <div class="table-container" id="bowlingContent"></div>
         </div>
+
+        <div id="moments" class="content-section">
+            <h2>Best Moments</h2>
+            <div class="filters">
+                <select id="momentTypeFilter" onchange="filterMoments()">
+                    <option value="all">All Moments</option>
+                    <option value="centuries">Centuries (100+)</option>
+                    <option value="fifties">Half-Centuries (50+)</option>
+                    <option value="wickets">Wicket Hauls (4+)</option>
+                    <option value="sixes">Big Hitting (3+ sixes)</option>
+                    <option value="explosive">Explosive Innings (SR 150+)</option>
+                    <option value="economy">Economical Bowling</option>
+                </select>
+            </div>
+            <div id="momentsContent" class="moments-grid"></div>
+        </div>
     </div>
 
     <!-- Player Performance Modal -->
@@ -734,6 +923,113 @@
         let bowlingChart = null;
 
         // Initialize dashboard
+        async function loadBestMoments() {
+            const momentType = document.getElementById('momentTypeFilter').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/best-moments?type=${momentType}`);
+                const data = await response.json();
+
+                const momentsContent = document.getElementById('momentsContent');
+
+                if (data.moments && data.moments.length > 0) {
+                    momentsContent.innerHTML = data.moments.map(moment => {
+                        let statsHTML = '';
+
+                        // Build stats based on moment type
+                        if (moment.type === 'century' || moment.type === 'fifty' || moment.type === 'big_hitting' || moment.type === 'explosive') {
+                            statsHTML = `
+                                <div class="moment-stats">
+                                    <div class="moment-stat">
+                                        <div class="moment-stat-value">${moment.runs}</div>
+                                        <div class="moment-stat-label">Runs</div>
+                                    </div>
+                                    <div class="moment-stat">
+                                        <div class="moment-stat-value">${moment.balls}</div>
+                                        <div class="moment-stat-label">Balls</div>
+                                    </div>
+                                    ${moment.fours ? `<div class="moment-stat">
+                                        <div class="moment-stat-value">${moment.fours}</div>
+                                        <div class="moment-stat-label">4s</div>
+                                    </div>` : ''}
+                                    ${moment.sixes ? `<div class="moment-stat">
+                                        <div class="moment-stat-value">${moment.sixes}</div>
+                                        <div class="moment-stat-label">6s</div>
+                                    </div>` : ''}
+                                    <div class="moment-stat">
+                                        <div class="moment-stat-value">${moment.strike_rate.toFixed(1)}</div>
+                                        <div class="moment-stat-label">SR</div>
+                                    </div>
+                                </div>
+                            `;
+                        } else if (moment.type === 'five_wickets' || moment.type === 'four_wickets' || moment.type === 'economical') {
+                            statsHTML = `
+                                <div class="moment-stats">
+                                    <div class="moment-stat">
+                                        <div class="moment-stat-value">${moment.wickets}</div>
+                                        <div class="moment-stat-label">Wickets</div>
+                                    </div>
+                                    <div class="moment-stat">
+                                        <div class="moment-stat-value">${moment.runs}</div>
+                                        <div class="moment-stat-label">Runs</div>
+                                    </div>
+                                    <div class="moment-stat">
+                                        <div class="moment-stat-value">${moment.overs}</div>
+                                        <div class="moment-stat-label">Overs</div>
+                                    </div>
+                                    <div class="moment-stat">
+                                        <div class="moment-stat-value">${moment.economy.toFixed(2)}</div>
+                                        <div class="moment-stat-label">Econ</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        // Get badge label
+                        let badgeLabel = '';
+                        switch(moment.type) {
+                            case 'century': badgeLabel = 'Century'; break;
+                            case 'fifty': badgeLabel = 'Half-Century'; break;
+                            case 'five_wickets': badgeLabel = '5+ Wickets'; break;
+                            case 'four_wickets': badgeLabel = '4 Wickets'; break;
+                            case 'big_hitting': badgeLabel = 'Big Hitting'; break;
+                            case 'explosive': badgeLabel = 'Explosive'; break;
+                            case 'economical': badgeLabel = 'Economical'; break;
+                        }
+
+                        return `
+                            <div class="moment-card ${moment.type}" onclick="openMatchModal(${moment.match_no})">
+                                <span class="moment-type-badge ${moment.type}">${badgeLabel}</span>
+                                <div class="moment-title">${moment.title}</div>
+                                <div class="moment-description">${moment.description}</div>
+                                ${statsHTML}
+                                <div class="moment-meta">
+                                    <div class="moment-meta-item">
+                                        <strong>Team:</strong> ${moment.team}
+                                    </div>
+                                    <div class="moment-meta-item">
+                                        <strong>Match:</strong> ${moment.match}
+                                    </div>
+                                    <div class="moment-meta-item">
+                                        <strong>Venue:</strong> ${moment.venue}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    momentsContent.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">No moments found for this filter.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading best moments:', error);
+                document.getElementById('momentsContent').innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Error loading moments. Please try again.</p>';
+            }
+        }
+
+        function filterMoments() {
+            loadBestMoments();
+        }
+
         async function init() {
             await loadOverview();
             await loadTeams();
@@ -742,6 +1038,7 @@
             await loadMatches();
             await loadTopBatsmen();
             await loadTopBowlers();
+            await loadBestMoments();
         }
 
         async function loadOverview() {
