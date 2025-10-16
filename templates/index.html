@@ -1325,9 +1325,9 @@
             const team2 = (data.team2_name || match.Team2).trim();
             const winningTeam = winner.trim();
 
-            // Calculate team totals
-            const team1Total = calculateTeamTotal(data.team1_batting);
-            const team2Total = calculateTeamTotal(data.team2_batting);
+            // Calculate team totals (including extras from bowling)
+            const team1Total = calculateTeamTotal(data.team1_batting, data.team2_bowling);
+            const team2Total = calculateTeamTotal(data.team2_batting, data.team1_bowling);
 
             let html = `
                 <div class="scorecard-section">
@@ -1356,7 +1356,10 @@
                 <div class="scorecard-section">
                     <div class="team-score ${winningTeam === team1 ? 'winner' : ''}">
                         <h3 class="team-name-header ${winningTeam === team1 ? 'winner' : ''}">${team1}</h3>
-                        <div class="score-display">${team1Total.runs}/${team1Total.wickets} (${team1Total.balls} balls)</div>
+                        <div class="score-display">${team1Total.total}/${team1Total.wickets}</div>
+                        <div style="color: #666; font-size: 0.95em; margin-top: 5px;">
+                            Extras: ${team1Total.extras} | Overs: ${(team1Total.balls / 6).toFixed(1)}
+                        </div>
 
                         ${displayBattingCard(data.team1_batting, 'Team 1')}
                         ${displayBowlingCard(data.team2_bowling, 'Team 2 Bowling')}
@@ -1367,7 +1370,10 @@
                 <div class="scorecard-section">
                     <div class="team-score ${winningTeam === team2 ? 'winner' : ''}">
                         <h3 class="team-name-header ${winningTeam === team2 ? 'winner' : ''}">${team2}</h3>
-                        <div class="score-display">${team2Total.runs}/${team2Total.wickets} (${team2Total.balls} balls)</div>
+                        <div class="score-display">${team2Total.total}/${team2Total.wickets}</div>
+                        <div style="color: #666; font-size: 0.95em; margin-top: 5px;">
+                            Extras: ${team2Total.extras} | Overs: ${(team2Total.balls / 6).toFixed(1)}
+                        </div>
 
                         ${displayBattingCard(data.team2_batting, 'Team 2')}
                         ${displayBowlingCard(data.team1_bowling, 'Team 1 Bowling')}
@@ -1378,20 +1384,33 @@
             container.innerHTML = html;
         }
 
-        function calculateTeamTotal(battingStats) {
-            let totalRuns = 0;
+        function calculateTeamTotal(battingStats, oppositionBowling) {
+            let battingRuns = 0;
             let totalWickets = 0;
             let totalBalls = 0;
 
             battingStats.forEach(stat => {
-                totalRuns += stat.Runs || 0;
+                battingRuns += stat.Runs || 0;
                 totalBalls += stat.Balls || 0;
                 if (stat.Dismissal && stat.Dismissal !== 'not out' && stat.Dismissal !== 'Not Out') {
                     totalWickets++;
                 }
             });
 
-            return { runs: totalRuns, wickets: totalWickets, balls: totalBalls };
+            // Total score = bowling runs conceded (includes extras)
+            let totalScore = 0;
+            if (oppositionBowling) {
+                totalScore = oppositionBowling.reduce((sum, stat) => sum + (stat.Runs || 0), 0);
+            }
+            const extras = totalScore - battingRuns;
+
+            return {
+                total: totalScore,      // Total score (batting + extras)
+                wickets: totalWickets,
+                balls: totalBalls,
+                extras: extras,
+                battingRuns: battingRuns
+            };
         }
 
         function displayBattingCard(battingStats, teamName) {
