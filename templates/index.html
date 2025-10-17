@@ -1313,20 +1313,71 @@
                     type: 'bar',
                     data: {
                         labels: data.map(d => d.batsman),
-                        datasets: [{
-                            label: 'Total Runs',
-                            data: data.map(d => d.total_runs),
-                            backgroundColor: 'rgba(102, 126, 234, 0.8)',
-                            borderColor: 'rgba(102, 126, 234, 1)',
-                            borderWidth: 2
-                        }]
+                        datasets: [
+                            {
+                                label: 'Total Runs',
+                                data: data.map(d => d.total_runs),
+                                backgroundColor: 'rgba(54, 37, 110, 0.8)',
+                                borderColor: 'rgba(54, 37, 110, 1)',
+                                borderWidth: 2,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Fours (4s)',
+                                data: data.map(d => d.total_4s),
+                                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                                borderColor: 'rgba(102, 126, 234, 1)',
+                                borderWidth: 2,
+                                yAxisID: 'y1'
+                            },
+                            {
+                                label: 'Sixes (6s)',
+                                data: data.map(d => d.total_6s),
+                                backgroundColor: 'rgba(231, 52, 147, 0.8)',
+                                borderColor: 'rgba(231, 52, 147, 1)',
+                                borderWidth: 2,
+                                yAxisID: 'y1'
+                            },
+                            {
+                                label: 'Strike Rate',
+                                data: data.map(d => d.strike_rate),
+                                backgroundColor: 'rgba(255, 193, 7, 0.8)',
+                                borderColor: 'rgba(255, 193, 7, 1)',
+                                borderWidth: 2,
+                                yAxisID: 'y1'
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
                         scales: {
                             y: {
-                                beginAtZero: true
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Total Runs'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '4s / 6s / Strike Rate'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
                             }
                         },
                         onClick: (event, activeElements) => {
