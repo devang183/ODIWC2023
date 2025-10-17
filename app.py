@@ -177,6 +177,7 @@ def get_top_bowlers():
                 'total_wickets': {'$sum': '$Wickets'},
                 'total_runs': {'$sum': '$Runs'},
                 'total_overs': {'$sum': '$Overs'},
+                'total_maidens': {'$sum': '$Maidens'},
                 'matches': {'$sum': 1}
             }},
             {'$project': {
@@ -184,12 +185,23 @@ def get_top_bowlers():
                 'total_wickets': 1,
                 'total_runs': 1,
                 'total_overs': 1,
+                'total_maidens': 1,
                 'matches': 1,
                 'economy': {
                     '$cond': [
                         {'$eq': ['$total_overs', 0]},
                         0,
                         {'$divide': ['$total_runs', '$total_overs']}
+                    ]
+                },
+                'avg_economy': {
+                    '$cond': [
+                        {'$eq': ['$matches', 0]},
+                        0,
+                        {'$divide': [
+                            {'$divide': ['$total_runs', '$total_overs']},
+                            '$matches'
+                        ]}
                     ]
                 }
             }},

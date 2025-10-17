@@ -1394,20 +1394,63 @@
                     type: 'bar',
                     data: {
                         labels: data.map(d => d.bowler),
-                        datasets: [{
-                            label: 'Total Wickets',
-                            data: data.map(d => d.total_wickets),
-                            backgroundColor: 'rgba(118, 75, 162, 0.8)',
-                            borderColor: 'rgba(118, 75, 162, 1)',
-                            borderWidth: 2
-                        }]
+                        datasets: [
+                            {
+                                label: 'Total Wickets',
+                                data: data.map(d => d.total_wickets),
+                                backgroundColor: 'rgba(54, 37, 110, 0.8)',
+                                borderColor: 'rgba(54, 37, 110, 1)',
+                                borderWidth: 2,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Average Economy',
+                                data: data.map(d => d.economy),
+                                backgroundColor: 'rgba(231, 52, 147, 0.8)',
+                                borderColor: 'rgba(231, 52, 147, 1)',
+                                borderWidth: 2,
+                                yAxisID: 'y1'
+                            },
+                            {
+                                label: 'Total Maidens',
+                                data: data.map(d => d.total_maidens || 0),
+                                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                                borderColor: 'rgba(102, 126, 234, 1)',
+                                borderWidth: 2,
+                                yAxisID: 'y'
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
                         scales: {
                             y: {
-                                beginAtZero: true
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Wickets / Maidens'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Economy Rate'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
                             }
                         },
                         onClick: (event, activeElements) => {
@@ -1430,6 +1473,7 @@
                                 <th>Wickets</th>
                                 <th>Runs</th>
                                 <th>Overs</th>
+                                <th>Maidens</th>
                                 <th>Economy</th>
                                 <th>Matches</th>
                             </tr>
@@ -1445,6 +1489,7 @@
                                     <td>${player.total_wickets}</td>
                                     <td>${player.total_runs}</td>
                                     <td>${player.total_overs.toFixed(1)}</td>
+                                    <td>${player.total_maidens || 0}</td>
                                     <td>${player.economy.toFixed(2)}</td>
                                     <td>${player.matches}</td>
                                 </tr>
