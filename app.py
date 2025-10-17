@@ -467,14 +467,21 @@ def get_match_scorecard(match_no):
         ).sort([('Bowler_Name', 1)]))
 
         # Group batting stats by team using Team_Innings field
-        team1_batting = []
-        team2_batting = []
-
+        # Determine innings order based on which team appears first in collection
         match_team1 = match.get('Team1', '').strip()
         match_team2 = match.get('Team2', '').strip()
 
+        first_innings_team = None
+        team1_batting = []
+        team2_batting = []
+
         for stat in batting_stats:
             team_innings = stat.get('Team_Innings', '').strip()
+
+            # Capture the first team that appears in the collection
+            if first_innings_team is None:
+                first_innings_team = team_innings
+                print(f"First innings team from collection: {first_innings_team}")
 
             # Match team innings to Team1 or Team2
             if team_innings == match_team1 or match_team1.find(team_innings) >= 0 or team_innings.find(match_team1) >= 0:
@@ -503,10 +510,17 @@ def get_match_scorecard(match_no):
         print(f"Found {len(team1_batting)} batting, {len(team1_bowling)} bowling for Team1")
         print(f"Found {len(team2_batting)} batting, {len(team2_bowling)} bowling for Team2")
 
-        # Determine innings order based on number of batsmen
-        # Team that batted first typically has more batsmen recorded (often all out)
-        # Team that chased may have fewer batsmen (won with wickets in hand)
-        if len(team2_batting) > len(team1_batting):
+        # Determine innings order based on which team appeared first in collection
+        # Check if first_innings_team matches Team2 (needs swap)
+        team2_batted_first = False
+        if first_innings_team:
+            team2_batted_first = (
+                first_innings_team == match_team2 or
+                match_team2.find(first_innings_team) >= 0 or
+                first_innings_team.find(match_team2) >= 0
+            )
+
+        if team2_batted_first:
             # Swap teams so first innings is shown first
             print("Swapping team order - Team2 batted first")
             return jsonify({
