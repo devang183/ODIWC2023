@@ -424,8 +424,18 @@ def get_player_performance(player_name):
             if stat.get('Match_no') in matches:
                 stat['match_info'] = matches[stat['Match_no']]
 
+        # Get player info including description and image
+        player_info = players_collection.find_one(
+            {'player_name': player_name},
+            {'_id': 0, 'description': 1, 'team_name': 1, 'playingRole': 1, 'image_of_player': 1}
+        )
+
         return jsonify({
             'player_name': player_name,
+            'description': player_info.get('description', '') if player_info else '',
+            'team': player_info.get('team_name', '') if player_info else '',
+            'role': player_info.get('playingRole', '') if player_info else '',
+            'image': player_info.get('image_of_player', '') if player_info else '',
             'batting': batting_stats,
             'bowling': bowling_stats
         })

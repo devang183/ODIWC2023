@@ -15,7 +15,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             color: #333;
             min-height: 100vh;
         }
@@ -37,7 +37,7 @@
         }
 
         h1 {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -72,13 +72,13 @@
 
         .search-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #36256E;
+            box-shadow: 0 0 0 3px rgba(54, 37, 110, 0.1);
         }
 
         .btn {
             padding: 15px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -90,7 +90,7 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 20px rgba(54, 37, 110, 0.4);
         }
 
         .stats-grid {
@@ -115,7 +115,7 @@
         .stat-value {
             font-size: 2.5em;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -147,7 +147,7 @@
         }
 
         .tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             color: white;
             border-color: transparent;
         }
@@ -181,7 +181,7 @@
         }
 
         th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             color: white;
             font-weight: 600;
         }
@@ -192,8 +192,8 @@
 
         tr.highlighted {
             background: #fff3cd !important;
-            border-left: 4px solid #667eea;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            border-left: 4px solid #36256E;
+            box-shadow: 0 2px 8px rgba(54, 37, 110, 0.3);
         }
 
         .chart-container {
@@ -228,7 +228,7 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 15px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #36256E;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -278,10 +278,12 @@
             border-radius: 20px;
             width: 90%;
             max-width: 900px;
-            max-height: 85vh;
+            max-height: 90vh;
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: slideDown 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
         }
 
         @keyframes slideDown {
@@ -296,12 +298,15 @@
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             color: white;
             padding: 25px 30px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            flex-shrink: 0;
+            max-height: 40vh;
+            overflow-y: auto;
         }
 
         .modal-header h2 {
@@ -313,6 +318,36 @@
             font-size: 0.9em;
             opacity: 0.95;
             margin-top: 5px;
+        }
+
+        .modal-header .player-description {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 12px;
+            line-height: 1.5;
+            font-style: italic;
+            max-width: 800px;
+        }
+
+        .player-header-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 25px;
+            width: 100%;
+        }
+
+        .player-info-text {
+            flex: 1;
+        }
+
+        .player-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .close {
@@ -331,7 +366,8 @@
         .modal-body {
             padding: 30px;
             overflow-y: auto;
-            max-height: calc(85vh - 100px);
+            flex: 1;
+            min-height: 0;
         }
 
         .performance-tabs {
@@ -353,8 +389,8 @@
         }
 
         .performance-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #36256E;
+            border-bottom-color: #36256E;
         }
 
         .performance-section {
@@ -370,7 +406,7 @@
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 15px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #36256E;
             transition: all 0.3s;
         }
 
@@ -423,7 +459,7 @@
         .stat-item .value {
             font-size: 1.4em;
             font-weight: 700;
-            color: #667eea;
+            color: #36256E;
             margin-top: 5px;
         }
 
@@ -446,7 +482,7 @@
         }
 
         .scorecard-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -469,7 +505,7 @@
 
         .scorecard-section h3 {
             font-size: 1.4em;
-            color: #667eea;
+            color: #36256E;
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #e0e0e0;
@@ -480,7 +516,7 @@
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #36256E;
         }
 
         .team-score.winner {
@@ -502,7 +538,7 @@
         .score-display {
             font-size: 2.5em;
             font-weight: 700;
-            color: #667eea;
+            color: #36256E;
             margin: 10px 0;
         }
 
@@ -546,7 +582,7 @@
 
         .best-figures {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-            color: #667eea;
+            color: #36256E;
         }
 
         .match-info-grid {
@@ -603,13 +639,13 @@
             left: 0;
             width: 5px;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
         }
 
         .moment-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(54, 37, 110, 0.3);
+            border-color: #36256E;
         }
 
         .moment-card.century::before {
@@ -731,7 +767,7 @@
         .moment-stat-value {
             font-size: 1.5em;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -881,9 +917,13 @@
     <div id="playerModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div>
-                    <h2 id="modalPlayerName"></h2>
-                    <div class="player-meta" id="modalPlayerMeta"></div>
+                <div class="player-header-content">
+                    <div class="player-info-text">
+                        <h2 id="modalPlayerName"></h2>
+                        <div class="player-meta" id="modalPlayerMeta"></div>
+                        <div class="player-description" id="modalPlayerDescription"></div>
+                    </div>
+                    <img id="modalPlayerImage" class="player-image" src="" alt="" style="display: none;">
                 </div>
                 <span class="close" onclick="closePlayerModal()">&times;</span>
             </div>
@@ -1441,6 +1481,25 @@
                 // Check if there's an error in the response
                 if (data.error) {
                     throw new Error(data.error);
+                }
+
+                // Display player description
+                const descriptionElement = document.getElementById('modalPlayerDescription');
+                if (data.description && data.description.trim()) {
+                    descriptionElement.textContent = data.description;
+                    descriptionElement.style.display = 'block';
+                } else {
+                    descriptionElement.style.display = 'none';
+                }
+
+                // Display player image
+                const imageElement = document.getElementById('modalPlayerImage');
+                if (data.image && data.image.trim() && data.image !== ' ') {
+                    imageElement.src = data.image;
+                    imageElement.alt = playerName;
+                    imageElement.style.display = 'block';
+                } else {
+                    imageElement.style.display = 'none';
                 }
 
                 // Display batting performance
