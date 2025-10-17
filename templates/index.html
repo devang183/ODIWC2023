@@ -244,6 +244,16 @@
             font-weight: 600;
             color: #333;
             margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .country-flag {
+            font-size: 1.5em;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
         }
 
         .player-info {
@@ -1124,6 +1134,23 @@
             }
         }
 
+        // Helper function to get country flag
+        function getCountryFlag(teamName) {
+            const flags = {
+                'India': '🇮🇳',
+                'Australia': '🇦🇺',
+                'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+                'Pakistan': '🇵🇰',
+                'New Zealand': '🇳🇿',
+                'South Africa': '🇿🇦',
+                'Sri Lanka': '🇱🇰',
+                'Bangladesh': '🇧🇩',
+                'Afghanistan': '🇦🇫',
+                'Netherlands': '🇳🇱'
+            };
+            return flags[teamName.trim()] || '🏏';
+        }
+
         async function loadPlayers() {
             const team = document.getElementById('teamFilter').value;
             const role = document.getElementById('roleFilter').value;
@@ -1139,7 +1166,10 @@
                 const content = document.getElementById('playersContent');
                 content.innerHTML = players.map(player => `
                     <div class="player-card" onclick="openPlayerModal('${player.player_name}', '${player.team_name}', '${player.playingRole}')">
-                        <div class="player-name">${player.player_name}</div>
+                        <div class="player-name">
+                            <span class="country-flag">${getCountryFlag(player.team_name)}</span>
+                            ${player.player_name}
+                        </div>
                         <div class="player-info">
                             <strong>Team:</strong> ${player.team_name} |
                             <strong>Role:</strong> ${player.playingRole} |
@@ -1374,7 +1404,10 @@
                     if (player.player_name) {
                         return `
                             <div class="player-card" onclick="openPlayerModal('${player.player_name}', '${player.team_name}', '${player.playingRole}')">
-                                <div class="player-name">${player.player_name}</div>
+                                <div class="player-name">
+                                    <span class="country-flag">${getCountryFlag(player.team_name)}</span>
+                                    ${player.player_name}
+                                </div>
                                 <div class="player-info">
                                     <strong>Team:</strong> ${player.team_name} |
                                     <strong>Role:</strong> ${player.playingRole}
