@@ -132,13 +132,28 @@ def get_top_batsmen():
     try:
         limit = int(request.args.get('limit', 10))
         
+        # First, remove duplicates by grouping by player + match_no + match_between
+        # then aggregate by player to get totals
         pipeline = [
+            # Step 1: Group by player, match_no, and match to remove duplicates
             {'$group': {
-                '_id': '$Batsman_Name',
-                'total_runs': {'$sum': '$Runs'},
-                'total_balls': {'$sum': '$Balls'},
-                'total_4s': {'$sum': '$4s'},
-                'total_6s': {'$sum': '$6s'},
+                '_id': {
+                    'player': '$Batsman_Name',
+                    'match_no': '$Match_no',
+                    'match': '$Match_Between'
+                },
+                'runs': {'$first': '$Runs'},
+                'balls': {'$first': '$Balls'},
+                'fours': {'$first': '$4s'},
+                'sixes': {'$first': '$6s'}
+            }},
+            # Step 2: Group by player to get totals
+            {'$group': {
+                '_id': '$_id.player',
+                'total_runs': {'$sum': '$runs'},
+                'total_balls': {'$sum': '$balls'},
+                'total_4s': {'$sum': '$fours'},
+                'total_6s': {'$sum': '$sixes'},
                 'matches': {'$sum': 1}
             }},
             {'$project': {
@@ -170,48 +185,72 @@ def get_top_bowlers():
     """Get top wicket takers"""
     try:
         limit = int(request.args.get('limit', 10))
-        
+
+        # First, remove duplicates by grouping by bowler + match_no + match_between
+        # then aggregate by bowler to get totals
         pipeline = [
+            # Step 1: Group by bowler, match_no, and match to remove duplicates
             {'$group': {
-                '_id': '$Bowler_Name',
-                'total_wickets': {'$sum': '$Wickets'},
-                'total_runs': {'$sum': '$Runs'},
-                'total_overs': {'$sum': '$Overs'},
-                'total_maidens': {'$sum': '$Maidens'},
-                'matches': {'$sum': 1}
-            }},
-            {'$project': {
-                'bowler': '$_id',
-                'total_wickets': 1,
-                'total_runs': 1,
-                'total_overs': 1,
-                'total_maidens': 1,
-                'matches': 1,
-                'economy': {
-                    '$cond': [
-                        {'$eq': ['$total_overs', 0]},
-                        0,
-                        {'$divide': ['$total_runs', '$total_overs']}
-                    ]
+                '_id': {
+                    'bowler': '$Bowler_Name',
+                    'match_no': '$Match_no',
+                    'match': '$Match_Between'
                 },
-                'avg_economy': {
-                    '$cond': [
-                        {'$eq': ['$matches', 0]},
-                        0,
-                        {'$divide': [
-                            {'$divide': ['$total_runs', '$total_overs']},
-                            '$matches'
-                        ]}
-                    ]
-                }
+                'wickets': {'$first': '$Wickets'},
+                'runs': {'$first': '$Runs'},
+                'overs': {'$first': '$Overs'},
+                'maidens': {'$first': '$Maidens'}
+            }},
+            # Step 2: Group by bowler to get totals
+            {'$group': {
+                '_id': '$_id.bowler',
+                'total_wickets': {'$sum': '$wickets'},
+                'total_runs': {'$sum': '$runs'},
+                'overs_list': {'$push': '$overs'},  # Collect all overs to process
+                'total_maidens': {'$sum': '$maidens'},
+                'matches': {'$sum': 1}
             }},
             {'$sort': {'total_wickets': -1}},
             {'$limit': limit}
         ]
-        
-        result = list(bowling_collection.aggregate(pipeline))
+
+        raw_result = list(bowling_collection.aggregate(pipeline))
+
+        # Process each bowler to correctly calculate total overs
+        result = []
+        for bowler in raw_result:
+            # Convert cricket overs to balls and sum them up
+            total_balls = 0
+            for overs in bowler['overs_list']:
+                # overs like 9.5 means 9 overs + 5 balls = (9*6) + 5 = 59 balls
+                overs_int = int(overs)
+                balls_remainder = int(round((overs - overs_int) * 10))  # Get decimal part as balls
+                total_balls += (overs_int * 6) + balls_remainder
+
+            # Convert total balls back to cricket overs format
+            overs_bowled = total_balls // 6
+            balls_bowled = total_balls % 6
+            total_overs_cricket = float(f"{overs_bowled}.{balls_bowled}")
+
+            # Calculate economy (runs per over)
+            economy = (bowler['total_runs'] / total_balls * 6) if total_balls > 0 else 0
+
+            result.append({
+                'bowler': bowler['_id'],
+                'total_wickets': bowler['total_wickets'],
+                'total_runs': bowler['total_runs'],
+                'total_overs': total_overs_cricket,
+                'total_balls': total_balls,
+                'total_maidens': bowler['total_maidens'],
+                'matches': bowler['matches'],
+                'economy': economy
+            })
+
         return jsonify(result)
     except Exception as e:
+        print(f"Error in get_top_bowlers: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 def levenshtein_distance(s1, s2):

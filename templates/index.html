@@ -202,10 +202,22 @@
             font-weight: 500;
         }
 
+        .tab:hover {
+            background: linear-gradient(135deg, rgba(54, 37, 110, 0.1) 0%, rgba(231, 52, 147, 0.1) 100%);
+            border-color: #36256E;
+            transform: translateY(-2px);
+        }
+
         .tab.active {
             background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             color: white;
             border-color: transparent;
+            box-shadow: 0 4px 15px rgba(54, 37, 110, 0.3);
+        }
+
+        .tab.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(54, 37, 110, 0.4);
         }
 
         .content-section {
@@ -1503,13 +1515,33 @@
         }
 
         async function performSearch() {
-            const query = document.getElementById('searchInput').value;
-            if (!query) return;
-            
+            const query = document.getElementById('searchInput').value.trim();
+
+            // If search is empty, reset to original data
+            if (!query) {
+                // Find which tab is currently active and reload it
+                const activeTab = document.querySelector('.tab.active');
+                if (activeTab) {
+                    const tabText = activeTab.textContent.toLowerCase();
+                    if (tabText.includes('player')) {
+                        await loadPlayers();
+                    } else if (tabText.includes('match')) {
+                        await loadMatches();
+                    } else if (tabText.includes('batting') || tabText.includes('batsmen')) {
+                        await loadTopBatsmen();
+                    } else if (tabText.includes('bowling') || tabText.includes('bowler')) {
+                        await loadTopBowlers();
+                    } else if (tabText.includes('moment')) {
+                        await loadBestMoments();
+                    }
+                }
+                return;
+            }
+
             try {
                 const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
                 const results = await response.json();
-                
+
                 // Show results in appropriate sections
                 if (results.players && results.players.length > 0) {
                     switchTab('players');
@@ -1559,11 +1591,20 @@
         }
 
         function switchTab(tabName) {
-            // Update tabs
+            // Map tab names to their onclick values for precise matching
+            const tabMapping = {
+                'players': 'Players',
+                'matches': 'Matches',
+                'batting': 'Top Batsmen',
+                'bowling': 'Top Bowlers',
+                'moments': 'Best Moments'
+            };
+
+            // Update tabs - remove active from all, then add to the clicked one
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
-                // Highlight the tab that matches the target section
-                if (tab.textContent.toLowerCase().includes(tabName.toLowerCase())) {
+                const expectedText = tabMapping[tabName];
+                if (expectedText && tab.textContent.trim() === expectedText) {
                     tab.classList.add('active');
                 }
             });
