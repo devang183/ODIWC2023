@@ -373,6 +373,15 @@
             justify-content: center;
         }
 
+        /* Player modal should appear above match modal */
+        #playerModal {
+            z-index: 1100;
+        }
+
+        #aiCommentaryModal {
+            z-index: 1050;
+        }
+
         .modal-content {
             background: white;
             margin: 20px;
@@ -666,6 +675,19 @@
         .player-name-cell {
             font-weight: 600;
             color: #333;
+        }
+
+        .player-name-cell[onclick] {
+            transition: all 0.2s ease;
+        }
+
+        .player-name-cell[onclick]:hover {
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: underline;
+            transform: translateX(2px);
         }
 
         .dismissal-cell {
@@ -2127,7 +2149,7 @@
                         ${battingStats.map(stat => `
                             <tr>
                                 <td style="color: #999; font-weight: 600;">${stat.Batting_Position || '-'}</td>
-                                <td class="player-name-cell">${stat.Batsman_Name}</td>
+                                <td class="player-name-cell" style="cursor: pointer; color: #36256E; font-weight: 600;" onclick="openPlayerModalByName('${stat.Batsman_Name}')" title="Click to view player details">${stat.Batsman_Name}</td>
                                 <td class="dismissal-cell">${stat.Dismissal || 'Not Out'}</td>
                                 <td><strong>${stat.Runs || 0}</strong></td>
                                 <td>${stat.Balls || 0}</td>
@@ -2173,7 +2195,7 @@
 
                             return `
                                 <tr>
-                                    <td class="player-name-cell">${stat.Bowler_Name}</td>
+                                    <td class="player-name-cell" style="cursor: pointer; color: #36256E; font-weight: 600;" onclick="openPlayerModalByName('${stat.Bowler_Name}')" title="Click to view player details">${stat.Bowler_Name}</td>
                                     <td>${stat.Overs ? stat.Overs.toFixed(1) : '0.0'}</td>
                                     <td>${stat.Maidens || 0}</td>
                                     <td>${stat.Runs || 0}</td>
