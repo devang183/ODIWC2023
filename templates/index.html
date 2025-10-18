@@ -1975,6 +1975,34 @@
             }
         }
 
+        // Helper function to convert cricket overs to balls
+        function cricketOversToTotalBalls(overs) {
+            const oversInt = Math.floor(overs);
+            const ballsRemainder = Math.round((overs - oversInt) * 10);
+            return (oversInt * 6) + ballsRemainder;
+        }
+
+        // Helper function to convert total balls to cricket overs format
+        function totalBallsToCricketOvers(totalBalls) {
+            const overs = Math.floor(totalBalls / 6);
+            const balls = totalBalls % 6;
+            return parseFloat(`${overs}.${balls}`);
+        }
+
+        // Helper function to calculate total overs from bowling stats
+        function calculateTotalOvers(bowlingStats) {
+            if (!bowlingStats || bowlingStats.length === 0) return 0;
+
+            let totalBalls = 0;
+            bowlingStats.forEach(stat => {
+                if (stat.Overs) {
+                    totalBalls += cricketOversToTotalBalls(stat.Overs);
+                }
+            });
+
+            return totalBallsToCricketOvers(totalBalls);
+        }
+
         function displayMatchScorecard(data, winner) {
             const container = document.getElementById('matchScorecardContent');
             const match = data.match;
@@ -1986,6 +2014,10 @@
             // Calculate team totals (including extras from bowling)
             const team1Total = calculateTeamTotal(data.team1_batting, data.team2_bowling);
             const team2Total = calculateTeamTotal(data.team2_batting, data.team1_bowling);
+
+            // Calculate total overs correctly from bowling stats
+            const team1Overs = calculateTotalOvers(data.team2_bowling);
+            const team2Overs = calculateTotalOvers(data.team1_bowling);
 
             let html = `
                 <div class="scorecard-section">
@@ -2016,7 +2048,7 @@
                         <h3 class="team-name-header ${winningTeam === team1 ? 'winner' : ''}">${team1}</h3>
                         <div class="score-display">${team1Total.total}/${team1Total.wickets}</div>
                         <div style="color: #666; font-size: 0.95em; margin-top: 5px;">
-                            Extras: ${team1Total.extras} | Overs: ${(team1Total.balls / 6).toFixed(1)}
+                            Extras: ${team1Total.extras} | Overs: ${team1Overs.toFixed(1)}
                         </div>
 
                         ${displayBattingCard(data.team1_batting, 'Team 1')}
@@ -2030,7 +2062,7 @@
                         <h3 class="team-name-header ${winningTeam === team2 ? 'winner' : ''}">${team2}</h3>
                         <div class="score-display">${team2Total.total}/${team2Total.wickets}</div>
                         <div style="color: #666; font-size: 0.95em; margin-top: 5px;">
-                            Extras: ${team2Total.extras} | Overs: ${(team2Total.balls / 6).toFixed(1)}
+                            Extras: ${team2Total.extras} | Overs: ${team2Overs.toFixed(1)}
                         </div>
 
                         ${displayBattingCard(data.team2_batting, 'Team 2')}
@@ -2130,12 +2162,15 @@
                             <th>Runs</th>
                             <th>Wickets</th>
                             <th>Economy</th>
-                            <th>Dots</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${bowlingStats.map(stat => {
                             const isBest = stat.Bowler_Name === bestBowler.Bowler_Name && stat.Wickets > 0;
+                            // Convert cricket overs to balls for proper economy calculation
+                            const totalBalls = stat.Overs ? cricketOversToTotalBalls(stat.Overs) : 0;
+                            const economy = totalBalls > 0 ? ((stat.Runs / totalBalls) * 6).toFixed(2) : '0.00';
+
                             return `
                                 <tr>
                                     <td class="player-name-cell">${stat.Bowler_Name}</td>
@@ -2147,8 +2182,7 @@
                                             ${stat.Wickets || 0}
                                         </span>
                                     </td>
-                                    <td>${stat.Overs > 0 ? (stat.Runs / stat.Overs).toFixed(2) : '0.00'}</td>
-                                    <td>${stat.Dots || 0}</td>
+                                    <td>${economy}</td>
                                 </tr>
                             `;
                         }).join('')}
