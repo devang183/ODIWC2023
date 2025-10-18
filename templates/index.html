@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ODI World Cup 2023 Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -14,10 +13,12 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Times New Roman', Times, serif;
             background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             color: #333;
             min-height: 100vh;
+            font-size: 16px;
+            line-height: 1.6;
         }
 
         .container {
@@ -41,9 +42,20 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-size: 2.5em;
+            font-size: 2.8em;
             font-weight: 700;
             margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        h2, h3 {
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        p {
+            font-size: 1.05em;
+            letter-spacing: 0.2px;
         }
 
         .search-container {
@@ -67,7 +79,9 @@
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
+            font-family: 'Times New Roman', Times, serif;
             transition: all 0.3s;
+            letter-spacing: 0.3px;
         }
 
         .search-input:focus {
@@ -84,8 +98,10 @@
             border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
+            font-family: 'Times New Roman', Times, serif;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            letter-spacing: 0.5px;
         }
 
         .btn:hover {
@@ -246,12 +262,20 @@
             padding: 15px;
             text-align: left;
             border-bottom: 1px solid #e0e0e0;
+            font-size: 1.05em;
         }
 
         th {
             background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
             color: white;
             font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 0.95em;
+        }
+
+        td {
+            letter-spacing: 0.2px;
         }
 
         tr:hover {
