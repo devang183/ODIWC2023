@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 import re
 import json
 from anthropic import Anthropic
-import pandas as pd
-from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -788,6 +786,8 @@ def get_best_moments():
 def get_head_to_head():
     """Get head-to-head history between two teams"""
     try:
+        import csv
+
         team1 = request.args.get('team1', '')
         team2 = request.args.get('team2', '')
         limit = int(request.args.get('limit', 10))
@@ -801,40 +801,89 @@ def get_head_to_head():
         if not os.path.exists(csv_path):
             return jsonify({'error': 'ODI matches data file not found'}), 404
 
-        # Read CSV
-        df = pd.read_csv(csv_path)
-
-        # Filter matches between these two teams (both directions)
-        h2h_matches = df[
-            ((df['Team1 Name'] == team1) & (df['Team2 Name'] == team2)) |
-            ((df['Team1 Name'] == team2) & (df['Team2 Name'] == team1))
-        ].copy()
+        # Read CSV and filter matches
+        h2h_matches = []
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Filter matches between these two teams (both directions)
+                if ((row.get('Team1 Name') == team1 and row.get('Team2 Name') == team2) or
+                    (row.get('Team1 Name') == team2 and row.get('Team2 Name') == team1)):
+                    h2h_matches.append(row)
 
         # Sort by date descending (most recent first)
-        h2h_matches['Match Date'] = pd.to_datetime(h2h_matches['Match Date'])
-        h2h_matches = h2h_matches.sort_values('Match Date', ascending=False)
+        def parse_date(row):
+            try:
+                from datetime import datetime
+                date_str = row.get('Match Date', '')
+                if date_str:
+                    return datetime.strptime(date_str, '%Y-%m-%d')
+                return datetime.min
+            except:
+                return datetime.min
+
+        h2h_matches.sort(key=parse_date, reverse=True)
 
         # Limit to last N matches
-        h2h_matches = h2h_matches.head(limit)
+        h2h_matches = h2h_matches[:limit]
 
         # Prepare response
         matches = []
-        for _, row in h2h_matches.iterrows():
-            match_data = {
-                'match_no': int(row['ODI Match No']) if pd.notna(row['ODI Match No']) else None,
-                'match_name': row['Match Name'] if pd.notna(row['Match Name']) else 'Unknown',
-                'series_name': row['Series Name'] if pd.notna(row['Series Name']) else 'Unknown',
-                'match_date': row['Match Date'].strftime('%B %d, %Y') if pd.notna(row['Match Date']) else 'Unknown',
-                'venue': f"{row['Match Venue (Stadium)']}, {row['Match Venue (City)']}" if pd.notna(row['Match Venue (Stadium)']) else 'Unknown',
-                'team1': row['Team1 Name'] if pd.notna(row['Team1 Name']) else 'Unknown',
-                'team1_score': f"{int(row['Team1 Runs Scored'])}/{int(row['Team1 Wickets Fell'])}" if pd.notna(row['Team1 Runs Scored']) and pd.notna(row['Team1 Wickets Fell']) else 'N/A',
-                'team2': row['Team2 Name'] if pd.notna(row['Team2 Name']) else 'Unknown',
-                'team2_score': f"{int(row['Team2 Runs Scored'])}/{int(row['Team2 Wickets Fell'])}" if pd.notna(row['Team2 Runs Scored']) and pd.notna(row['Team2 Wickets Fell']) else 'N/A',
-                'winner': row['Match Winner'] if pd.notna(row['Match Winner']) else 'No Result',
-                'result': row['Match Result Text'] if pd.notna(row['Match Result Text']) else 'No Result',
-                'mom': row['MOM Player'] if pd.notna(row['MOM Player']) else 'Unknown'
-            }
-            matches.append(match_data)
+        for row in h2h_matches:
+            try:
+                # Format date
+                match_date = 'Unknown'
+                if row.get('Match Date'):
+                    try:
+                        dt = datetime.strptime(row['Match Date'], '%Y-%m-%d')
+                        match_date = dt.strftime('%B %d, %Y')
+                    except:
+                        match_date = row['Match Date']
+
+                # Format scores
+                team1_score = 'N/A'
+                if row.get('Team1 Runs Scored') and row.get('Team1 Wickets Fell'):
+                    try:
+                        runs = float(row['Team1 Runs Scored'])
+                        wickets = float(row['Team1 Wickets Fell'])
+                        team1_score = f"{int(runs)}/{int(wickets)}"
+                    except:
+                        pass
+
+                team2_score = 'N/A'
+                if row.get('Team2 Runs Scored') and row.get('Team2 Wickets Fell'):
+                    try:
+                        runs = float(row['Team2 Runs Scored'])
+                        wickets = float(row['Team2 Wickets Fell'])
+                        team2_score = f"{int(runs)}/{int(wickets)}"
+                    except:
+                        pass
+
+                # Build venue string
+                venue = 'Unknown'
+                if row.get('Match Venue (Stadium)') and row.get('Match Venue (City)'):
+                    venue = f"{row['Match Venue (Stadium)']}, {row['Match Venue (City)']}"
+                elif row.get('Match Venue (Stadium)'):
+                    venue = row['Match Venue (Stadium)']
+
+                match_data = {
+                    'match_no': int(float(row.get('ODI Match No', 0))) if row.get('ODI Match No') else None,
+                    'match_name': row.get('Match Name', 'Unknown'),
+                    'series_name': row.get('Series Name', 'Unknown'),
+                    'match_date': match_date,
+                    'venue': venue,
+                    'team1': row.get('Team1 Name', 'Unknown'),
+                    'team1_score': team1_score,
+                    'team2': row.get('Team2 Name', 'Unknown'),
+                    'team2_score': team2_score,
+                    'winner': row.get('Match Winner', 'No Result'),
+                    'result': row.get('Match Result Text', 'No Result'),
+                    'mom': row.get('MOM Player', 'Unknown')
+                }
+                matches.append(match_data)
+            except Exception as e:
+                print(f"Error processing match row: {str(e)}")
+                continue
 
         # Calculate head-to-head summary
         total_matches = len(matches)
