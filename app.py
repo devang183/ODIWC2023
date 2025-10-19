@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 import re
 import json
-import pandas as pd
 from datetime import datetime
 
 # Initialize Flask app
