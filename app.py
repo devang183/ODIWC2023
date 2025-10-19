@@ -4,6 +4,10 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 import re
+import json
+from anthropic import Anthropic
+import pandas as pd
+from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -778,6 +782,85 @@ def get_best_moments():
         return jsonify({'moments': moments, 'total': len(moments)})
     except Exception as e:
         print(f"Error fetching best moments: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/head-to-head')
+def get_head_to_head():
+    """Get head-to-head history between two teams"""
+    try:
+        team1 = request.args.get('team1', '')
+        team2 = request.args.get('team2', '')
+        limit = int(request.args.get('limit', 10))
+
+        if not team1 or not team2:
+            return jsonify({'error': 'Both team1 and team2 parameters are required'}), 400
+
+        # Load ODI matches data
+        csv_path = os.path.join(os.path.dirname(__file__), 'odi_Matches_Data.csv')
+
+        if not os.path.exists(csv_path):
+            return jsonify({'error': 'ODI matches data file not found'}), 404
+
+        # Read CSV
+        df = pd.read_csv(csv_path)
+
+        # Filter matches between these two teams (both directions)
+        h2h_matches = df[
+            ((df['Team1 Name'] == team1) & (df['Team2 Name'] == team2)) |
+            ((df['Team1 Name'] == team2) & (df['Team2 Name'] == team1))
+        ].copy()
+
+        # Sort by date descending (most recent first)
+        h2h_matches['Match Date'] = pd.to_datetime(h2h_matches['Match Date'])
+        h2h_matches = h2h_matches.sort_values('Match Date', ascending=False)
+
+        # Limit to last N matches
+        h2h_matches = h2h_matches.head(limit)
+
+        # Prepare response
+        matches = []
+        for _, row in h2h_matches.iterrows():
+            match_data = {
+                'match_no': int(row['ODI Match No']) if pd.notna(row['ODI Match No']) else None,
+                'match_name': row['Match Name'] if pd.notna(row['Match Name']) else 'Unknown',
+                'series_name': row['Series Name'] if pd.notna(row['Series Name']) else 'Unknown',
+                'match_date': row['Match Date'].strftime('%B %d, %Y') if pd.notna(row['Match Date']) else 'Unknown',
+                'venue': f"{row['Match Venue (Stadium)']}, {row['Match Venue (City)']}" if pd.notna(row['Match Venue (Stadium)']) else 'Unknown',
+                'team1': row['Team1 Name'] if pd.notna(row['Team1 Name']) else 'Unknown',
+                'team1_score': f"{int(row['Team1 Runs Scored'])}/{int(row['Team1 Wickets Fell'])}" if pd.notna(row['Team1 Runs Scored']) and pd.notna(row['Team1 Wickets Fell']) else 'N/A',
+                'team2': row['Team2 Name'] if pd.notna(row['Team2 Name']) else 'Unknown',
+                'team2_score': f"{int(row['Team2 Runs Scored'])}/{int(row['Team2 Wickets Fell'])}" if pd.notna(row['Team2 Runs Scored']) and pd.notna(row['Team2 Wickets Fell']) else 'N/A',
+                'winner': row['Match Winner'] if pd.notna(row['Match Winner']) else 'No Result',
+                'result': row['Match Result Text'] if pd.notna(row['Match Result Text']) else 'No Result',
+                'mom': row['MOM Player'] if pd.notna(row['MOM Player']) else 'Unknown'
+            }
+            matches.append(match_data)
+
+        # Calculate head-to-head summary
+        total_matches = len(matches)
+        team1_wins = sum(1 for m in matches if m['winner'] == team1)
+        team2_wins = sum(1 for m in matches if m['winner'] == team2)
+        no_results = total_matches - team1_wins - team2_wins
+
+        summary = {
+            'total_matches': total_matches,
+            'team1_wins': team1_wins,
+            'team2_wins': team2_wins,
+            'no_results': no_results,
+            'team1': team1,
+            'team2': team2
+        }
+
+        return jsonify({
+            'success': True,
+            'summary': summary,
+            'matches': matches
+        })
+
+    except Exception as e:
+        print(f"Error fetching head-to-head: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
