@@ -34,6 +34,7 @@ try:
     
     # Initialize collections
     players_collection = db['WCPlayersInfoODIWC2023']
+    players_info_collection = db['ODIplayers_info']  # Collection with player images
     matches_collection = db['matchScheduleResultsODIWC2023']
     batting_collection = db['battingODIWC2023']
     bowling_collection = db['bowlingODIWC2023']
@@ -477,10 +478,16 @@ def get_player_performance(player_name):
             if stat.get('Match_no') in matches:
                 stat['match_info'] = matches[stat['Match_no']]
 
-        # Get player info including description and image
+        # Get player info including description from WCPlayersInfoODIWC2023
         player_info = players_collection.find_one(
             {'player_name': player_name},
-            {'_id': 0, 'description': 1, 'team_name': 1, 'playingRole': 1, 'image_of_player': 1}
+            {'_id': 0, 'description': 1, 'team_name': 1, 'playingRole': 1}
+        )
+
+        # Get player image from ODIplayers_info collection
+        player_image_info = players_info_collection.find_one(
+            {'player_name': player_name},
+            {'_id': 0, 'image_url': 1}
         )
 
         return jsonify({
@@ -488,7 +495,7 @@ def get_player_performance(player_name):
             'description': player_info.get('description', '') if player_info else '',
             'team': player_info.get('team_name', '') if player_info else '',
             'role': player_info.get('playingRole', '') if player_info else '',
-            'image': player_info.get('image_of_player', '') if player_info else '',
+            'image': player_image_info.get('image_url', '') if player_image_info else '',
             'batting': batting_stats,
             'bowling': bowling_stats
         })
