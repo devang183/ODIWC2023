@@ -1159,6 +1159,15 @@
             color: #FF9800;
         }
 
+        .player-section.active {
+            border: 3px solid #36256E;
+            box-shadow: 0 0 20px rgba(54, 37, 110, 0.3);
+        }
+
+        .player-section.completed {
+            opacity: 0.7;
+        }
+
         /* Mobile Responsive Styles for Blackjack */
         @media screen and (max-width: 768px) {
             .blackjack-container {
@@ -1644,14 +1653,14 @@
                     <div id="dealerCards" class="card-display"></div>
                 </div>
 
-                <div class="player-section">
-                    <h3 style="color: #36256E;">Your Hand <span id="playerScore"></span></h3>
-                    <div id="playerCards" class="card-display"></div>
+                <div id="playerHandsContainer">
+                    <!-- Player hands will be dynamically added here -->
                 </div>
 
                 <div class="game-controls">
                     <button id="hitBtn" class="blackjack-btn primary" onclick="hit()">Hit</button>
                     <button id="standBtn" class="blackjack-btn secondary" onclick="stand()">Stand</button>
+                    <button id="splitBtn" class="blackjack-btn" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; display: none;" onclick="split()">Split</button>
                     <button id="newGameBtn" class="blackjack-btn" onclick="startNewGame()" style="display: none;">New Game</button>
                 </div>
 
@@ -3298,9 +3307,10 @@
             }
         });
 
-        // ========== BLACKJACK GAME LOGIC ==========
+        // ========== BLACKJACK GAME LOGIC (WITH SPLITTING) ==========
         let deck = [];
-        let playerHand = [];
+        let playerHands = []; // Array of hands (for splits)
+        let currentHandIndex = 0;
         let dealerHand = [];
         let gameOver = false;
 
@@ -3353,6 +3363,7 @@
         // Render cards
         function renderCards(hand, containerId, hideFirst = false) {
             const container = document.getElementById(containerId);
+            if (!container) return;
             container.innerHTML = '';
 
             hand.forEach((card, index) => {
@@ -3373,75 +3384,185 @@
             });
         }
 
-        // Update scores
-        function updateScores(hideDealer = false) {
-            const playerScore = calculateScore(playerHand);
+        // Render all player hands
+        function renderPlayerHands() {
+            const container = document.getElementById('playerHandsContainer');
+            container.innerHTML = '';
+
+            playerHands.forEach((hand, index) => {
+                const handDiv = document.createElement('div');
+                handDiv.className = 'player-section';
+                handDiv.id = `hand-${index}`;
+
+                if (index === currentHandIndex && !hand.completed) {
+                    handDiv.classList.add('active');
+                } else if (hand.completed) {
+                    handDiv.classList.add('completed');
+                }
+
+                const score = calculateScore(hand.cards);
+                const handLabel = playerHands.length > 1 ? `Hand ${index + 1}` : 'Your Hand';
+                const status = hand.busted ? ' - BUST' : hand.completed ? ` - ${score}` : '';
+
+                handDiv.innerHTML = `
+                    <h3 style="color: #36256E;">${handLabel} <span>(${score})${status}</span></h3>
+                    <div id="playerCards-${index}" class="card-display"></div>
+                `;
+
+                container.appendChild(handDiv);
+                renderCards(hand.cards, `playerCards-${index}`);
+            });
+        }
+
+        // Update dealer score
+        function updateDealerScore(hideScore = false) {
             const dealerScore = calculateScore(dealerHand);
-
-            document.getElementById('playerScore').textContent = `(${playerScore})`;
-
-            if (hideDealer) {
+            if (hideScore) {
                 document.getElementById('dealerScore').textContent = '(?)';
             } else {
                 document.getElementById('dealerScore').textContent = `(${dealerScore})`;
             }
         }
 
+        // Check if current hand can split
+        function canSplit() {
+            if (currentHandIndex >= playerHands.length) return false;
+            const hand = playerHands[currentHandIndex];
+            if (hand.cards.length !== 2) return false;
+            return hand.cards[0].rank === hand.cards[1].rank;
+        }
+
+        // Update button visibility
+        function updateButtons() {
+            const currentHand = playerHands[currentHandIndex];
+            const splitBtn = document.getElementById('splitBtn');
+
+            if (canSplit() && !currentHand.completed) {
+                splitBtn.style.display = 'inline-block';
+            } else {
+                splitBtn.style.display = 'none';
+            }
+        }
+
         // Start new game
         function startNewGame() {
             deck = createDeck();
-            playerHand = [];
+            playerHands = [{ cards: [], completed: false, busted: false, result: null }];
+            currentHandIndex = 0;
             dealerHand = [];
             gameOver = false;
 
             // Deal initial cards
-            playerHand.push(deck.pop());
+            playerHands[0].cards.push(deck.pop());
             dealerHand.push(deck.pop());
-            playerHand.push(deck.pop());
+            playerHands[0].cards.push(deck.pop());
             dealerHand.push(deck.pop());
 
-            renderCards(playerHand, 'playerCards');
+            renderPlayerHands();
             renderCards(dealerHand, 'dealerCards', true);
-            updateScores(true);
+            updateDealerScore(true);
 
             document.getElementById('gameMessage').innerHTML = '';
             document.getElementById('hitBtn').style.display = 'inline-block';
             document.getElementById('standBtn').style.display = 'inline-block';
+            document.getElementById('splitBtn').style.display = 'none';
             document.getElementById('newGameBtn').style.display = 'none';
 
+            updateButtons();
+
             // Check for immediate blackjack
-            if (calculateScore(playerHand) === 21) {
+            if (calculateScore(playerHands[0].cards) === 21) {
                 stand();
             }
         }
 
         // Player hits
         function hit() {
-            if (gameOver) return;
+            if (gameOver || currentHandIndex >= playerHands.length) return;
 
-            playerHand.push(deck.pop());
-            renderCards(playerHand, 'playerCards');
-            updateScores(true);
+            const currentHand = playerHands[currentHandIndex];
+            if (currentHand.completed) return;
 
-            const playerScore = calculateScore(playerHand);
-            if (playerScore > 21) {
-                endGame('bust');
-            } else if (playerScore === 21) {
+            currentHand.cards.push(deck.pop());
+            renderPlayerHands();
+
+            const score = calculateScore(currentHand.cards);
+            if (score > 21) {
+                currentHand.busted = true;
+                currentHand.completed = true;
+                currentHand.result = 'bust';
+                renderPlayerHands();
+                moveToNextHand();
+            } else if (score === 21) {
+                stand();
+            } else {
+                updateButtons();
+            }
+        }
+
+        // Split current hand
+        function split() {
+            if (!canSplit()) return;
+
+            const currentHand = playerHands[currentHandIndex];
+            const card1 = currentHand.cards[0];
+            const card2 = currentHand.cards[1];
+
+            // Create two new hands
+            currentHand.cards = [card1, deck.pop()];
+            const newHand = { cards: [card2, deck.pop()], completed: false, busted: false, result: null };
+
+            // Insert new hand right after current hand
+            playerHands.splice(currentHandIndex + 1, 0, newHand);
+
+            renderPlayerHands();
+            updateButtons();
+
+            // Auto-stand if we hit 21
+            if (calculateScore(currentHand.cards) === 21) {
                 stand();
             }
         }
 
-        // Player stands
-        function stand() {
-            if (gameOver) return;
+        // Move to next hand or end player turn
+        function moveToNextHand() {
+            currentHandIndex++;
 
+            if (currentHandIndex >= playerHands.length) {
+                // All hands played, dealer's turn
+                playDealer();
+            } else {
+                renderPlayerHands();
+                updateButtons();
+
+                // Auto-stand if next hand is 21
+                if (calculateScore(playerHands[currentHandIndex].cards) === 21) {
+                    stand();
+                }
+            }
+        }
+
+        // Player stands on current hand
+        function stand() {
+            if (gameOver || currentHandIndex >= playerHands.length) return;
+
+            const currentHand = playerHands[currentHandIndex];
+            currentHand.completed = true;
+            renderPlayerHands();
+
+            moveToNextHand();
+        }
+
+        // Dealer plays
+        function playDealer() {
             gameOver = true;
             document.getElementById('hitBtn').style.display = 'none';
             document.getElementById('standBtn').style.display = 'none';
+            document.getElementById('splitBtn').style.display = 'none';
 
             // Reveal dealer's card
             renderCards(dealerHand, 'dealerCards');
-            updateScores(false);
+            updateDealerScore(false);
 
             // Dealer must hit on 16 or less
             setTimeout(() => dealerPlay(), 500);
@@ -3453,67 +3574,92 @@
             if (dealerScore < 17) {
                 dealerHand.push(deck.pop());
                 renderCards(dealerHand, 'dealerCards');
-                updateScores(false);
+                updateDealerScore(false);
                 setTimeout(() => dealerPlay(), 500);
             } else {
-                determineWinner();
+                determineWinners();
             }
         }
 
-        // Determine winner
-        function determineWinner() {
-            const playerScore = calculateScore(playerHand);
+        // Determine winners for all hands
+        function determineWinners() {
+            const dealerScore = calculateScore(dealerHand);
+            const dealerBusted = dealerScore > 21;
+            let anyWin = false;
+
+            playerHands.forEach(hand => {
+                if (hand.busted) {
+                    hand.result = 'lose';
+                } else {
+                    const playerScore = calculateScore(hand.cards);
+
+                    if (dealerBusted || playerScore > dealerScore) {
+                        hand.result = 'win';
+                        anyWin = true;
+                    } else if (playerScore < dealerScore) {
+                        hand.result = 'lose';
+                    } else {
+                        hand.result = 'push';
+                    }
+                }
+            });
+
+            showFinalResults(anyWin);
+        }
+
+        // Show final results
+        function showFinalResults(anyWin) {
+            const messageDiv = document.getElementById('gameMessage');
             const dealerScore = calculateScore(dealerHand);
 
-            if (dealerScore > 21) {
-                endGame('win');
-            } else if (playerScore > dealerScore) {
-                endGame('win');
-            } else if (playerScore < dealerScore) {
-                endGame('lose');
-            } else {
-                endGame('push');
-            }
-        }
+            let resultsHTML = '<div style="margin-top: 20px;">';
+            resultsHTML += `<h3 style="color: #36256E;">Final Results - Dealer: ${dealerScore}</h3>`;
+            resultsHTML += '<div style="margin: 15px 0;">';
 
-        // End game
-        function endGame(result) {
-            gameOver = true;
-            const messageDiv = document.getElementById('gameMessage');
+            playerHands.forEach((hand, index) => {
+                const score = calculateScore(hand.cards);
+                const handLabel = playerHands.length > 1 ? `Hand ${index + 1}` : 'Your Hand';
+                let resultText = '';
+                let resultColor = '';
 
-            if (result === 'win') {
-                messageDiv.innerHTML = `
-                    <div style="color: #28a745; font-size: 1.5em; font-weight: 700; margin-bottom: 15px;">
-                        🎉 You Win!
+                if (hand.result === 'win') {
+                    resultText = '✅ WIN';
+                    resultColor = '#28a745';
+                } else if (hand.result === 'lose' || hand.result === 'bust') {
+                    resultText = hand.busted ? '💥 BUST' : '❌ LOSE';
+                    resultColor = '#dc3545';
+                } else {
+                    resultText = '🤝 PUSH';
+                    resultColor = '#ffc107';
+                }
+
+                resultsHTML += `<div style="padding: 10px; margin: 5px 0; background: #f9f9f9; border-radius: 8px;">
+                    <strong>${handLabel}:</strong> ${score} - <span style="color: ${resultColor}; font-weight: 700;">${resultText}</span>
+                </div>`;
+            });
+
+            resultsHTML += '</div>';
+
+            if (anyWin) {
+                resultsHTML += `
+                    <div style="color: #28a745; font-size: 1.5em; font-weight: 700; margin: 20px 0;">
+                        🎉 You Won with at least one hand!
                     </div>
                     <button class="blackjack-btn primary" onclick="unlockDashboard()" style="font-size: 1.1em;">
                         Access Cricket Dashboard →
                     </button>
                 `;
-            } else if (result === 'lose') {
-                messageDiv.innerHTML = `
-                    <div style="color: #dc3545; font-size: 1.3em; font-weight: 700;">
-                        😢 You Lose - Try Again!
-                    </div>
-                `;
-                document.getElementById('newGameBtn').style.display = 'inline-block';
-            } else if (result === 'bust') {
-                messageDiv.innerHTML = `
-                    <div style="color: #dc3545; font-size: 1.3em; font-weight: 700;">
-                        💥 Bust! You went over 21
-                    </div>
-                `;
-                renderCards(dealerHand, 'dealerCards');
-                updateScores(false);
-                document.getElementById('newGameBtn').style.display = 'inline-block';
-            } else if (result === 'push') {
-                messageDiv.innerHTML = `
-                    <div style="color: #ffc107; font-size: 1.3em; font-weight: 700;">
-                        🤝 Push - It's a Tie!
+            } else {
+                resultsHTML += `
+                    <div style="color: #dc3545; font-size: 1.3em; font-weight: 700; margin: 20px 0;">
+                        😢 All hands lost - Try Again!
                     </div>
                 `;
                 document.getElementById('newGameBtn').style.display = 'inline-block';
             }
+
+            resultsHTML += '</div>';
+            messageDiv.innerHTML = resultsHTML;
         }
 
         // Unlock dashboard
