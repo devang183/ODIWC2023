@@ -1159,6 +1159,146 @@
             color: #FF9800;
         }
 
+        /* Mobile Responsive Styles for Blackjack */
+        @media screen and (max-width: 768px) {
+            .blackjack-container {
+                padding: 25px;
+                width: 95%;
+                max-width: none;
+                border-radius: 15px;
+            }
+
+            .blackjack-container h1 {
+                font-size: 1.5em;
+                margin-bottom: 8px;
+            }
+
+            .blackjack-container p {
+                font-size: 0.9em;
+                margin-bottom: 20px;
+            }
+
+            .dealer-section, .player-section {
+                margin-bottom: 20px;
+                padding: 15px;
+                border-radius: 8px;
+            }
+
+            .dealer-section h3, .player-section h3 {
+                font-size: 1.1em;
+                margin: 0 0 10px 0;
+            }
+
+            .card-display {
+                gap: 8px;
+                margin-top: 12px;
+                min-height: 90px;
+                justify-content: center;
+            }
+
+            .card {
+                width: 55px;
+                height: 80px;
+                font-size: 1.2em;
+                border-radius: 6px;
+            }
+
+            .card.hidden {
+                font-size: 1.6em;
+            }
+
+            .game-controls {
+                flex-direction: column;
+                gap: 12px;
+                margin: 20px 0;
+            }
+
+            .blackjack-btn {
+                padding: 14px 30px;
+                font-size: 1em;
+                width: 100%;
+            }
+
+            .game-message {
+                font-size: 1.2em;
+                margin-top: 15px;
+            }
+
+            .game-message div {
+                font-size: 1.1em;
+            }
+
+            .game-message button {
+                font-size: 1em;
+                padding: 12px 24px;
+                margin-top: 12px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .blackjack-container {
+                padding: 20px;
+                border-radius: 12px;
+            }
+
+            .blackjack-container h1 {
+                font-size: 1.3em;
+            }
+
+            .blackjack-container p {
+                font-size: 0.85em;
+            }
+
+            .dealer-section, .player-section {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+
+            .dealer-section h3, .player-section h3 {
+                font-size: 1em;
+            }
+
+            .card-display {
+                gap: 6px;
+                min-height: 75px;
+            }
+
+            .card {
+                width: 45px;
+                height: 65px;
+                font-size: 1em;
+                border-radius: 5px;
+                border-width: 1.5px;
+            }
+
+            .card.hidden {
+                font-size: 1.3em;
+            }
+
+            .game-controls {
+                gap: 10px;
+                margin: 15px 0;
+            }
+
+            .blackjack-btn {
+                padding: 12px 24px;
+                font-size: 0.95em;
+            }
+
+            .game-message {
+                font-size: 1em;
+            }
+
+            .game-message div {
+                font-size: 1em;
+            }
+
+            .game-message button {
+                font-size: 0.9em;
+                padding: 10px 20px;
+            }
+        }
+
         /* Horse Racing Gate Styles */
         .horse-racing-gate {
             position: fixed;
@@ -1245,7 +1385,7 @@
             border-radius: 15px;
             padding: 30px 20px;
             margin: 30px 0;
-            min-height: 400px;
+            min-height: 500px;
         }
 
         .finish-line {
@@ -1315,6 +1455,180 @@
             font-size: 1.2em;
             font-weight: 600;
         }
+
+        /* Mobile Responsive Styles for Horse Racing */
+        @media screen and (max-width: 768px) {
+            .horse-racing-container {
+                width: 95%;
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .horse-racing-container h1 {
+                font-size: 1.5em;
+                margin-bottom: 8px;
+            }
+
+            .horse-racing-container p {
+                font-size: 0.9em;
+                margin-bottom: 20px;
+            }
+
+            .horses-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                margin: 20px 0;
+            }
+
+            .horse-card {
+                padding: 15px;
+                border-radius: 12px;
+            }
+
+            .horse-icon {
+                font-size: 2.5em;
+                margin-bottom: 8px;
+            }
+
+            .horse-name {
+                font-size: 1.1em;
+                margin: 8px 0;
+            }
+
+            .horse-stats {
+                font-size: 0.8em;
+            }
+
+            .track-container {
+                padding: 15px 10px;
+                margin: 20px 0;
+                min-height: 370px;
+            }
+
+            .race-info {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .race-info h3 {
+                font-size: 1.1em;
+                margin: 0 0 8px 0;
+            }
+
+            .race-info p {
+                font-size: 0.9em;
+                margin: 0;
+            }
+
+            .finish-line {
+                right: 15px;
+                width: 6px;
+            }
+
+            .race-lane {
+                height: 65px;
+                margin: 8px 0;
+            }
+
+            .lane-number {
+                left: 8px;
+                font-size: 1.5em;
+            }
+
+            .horse-runner {
+                left: 35px;
+                font-size: 2em;
+            }
+
+            .race-result {
+                margin-top: 20px;
+                font-size: 1em;
+            }
+
+            .race-result h2 {
+                font-size: 1.3em;
+                margin-bottom: 10px;
+            }
+
+            .race-result p {
+                font-size: 0.95em;
+                margin-bottom: 15px;
+            }
+
+            .race-result button {
+                font-size: 1em;
+                padding: 12px 24px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .horse-racing-container {
+                padding: 15px;
+            }
+
+            .horse-racing-container h1 {
+                font-size: 1.3em;
+            }
+
+            .horses-grid {
+                gap: 10px;
+                margin: 15px 0;
+            }
+
+            .horse-card {
+                padding: 12px;
+            }
+
+            .horse-icon {
+                font-size: 2em;
+            }
+
+            .horse-name {
+                font-size: 1em;
+            }
+
+            .horse-stats {
+                font-size: 0.75em;
+            }
+
+            .track-container {
+                padding: 10px 8px;
+                min-height: 310px;
+            }
+
+            .race-lane {
+                height: 55px;
+                margin: 6px 0;
+            }
+
+            .lane-number {
+                font-size: 1.2em;
+                left: 5px;
+            }
+
+            .horse-runner {
+                left: 30px;
+                font-size: 1.5em;
+            }
+
+            .finish-line {
+                right: 10px;
+                width: 5px;
+            }
+
+            .race-result h2 {
+                font-size: 1.1em;
+            }
+
+            .race-result p {
+                font-size: 0.9em;
+            }
+
+            .race-result button {
+                font-size: 0.95em;
+                padding: 10px 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1359,22 +1673,27 @@
                         <div class="horse-card" onclick="selectHorse(1)">
                             <div class="horse-icon">🐴</div>
                             <div class="horse-name">Thunder</div>
-                            <div class="horse-stats">Speed: ⭐⭐⭐⭐</div>
+                            <div class="horse-stats">Odds: 3/1</div>
                         </div>
                         <div class="horse-card" onclick="selectHorse(2)">
                             <div class="horse-icon">🏇</div>
                             <div class="horse-name">Lightning</div>
-                            <div class="horse-stats">Speed: ⭐⭐⭐⭐⭐</div>
+                            <div class="horse-stats">Odds: 5/2</div>
                         </div>
                         <div class="horse-card" onclick="selectHorse(3)">
                             <div class="horse-icon">🐎</div>
                             <div class="horse-name">Storm</div>
-                            <div class="horse-stats">Speed: ⭐⭐⭐⭐</div>
+                            <div class="horse-stats">Odds: 4/1</div>
                         </div>
                         <div class="horse-card" onclick="selectHorse(4)">
                             <div class="horse-icon">🦄</div>
                             <div class="horse-name">Blaze</div>
-                            <div class="horse-stats">Speed: ⭐⭐⭐⭐⭐</div>
+                            <div class="horse-stats">Odds: 2/1</div>
+                        </div>
+                        <div class="horse-card" onclick="selectHorse(5)">
+                            <div class="horse-icon">🎠</div>
+                            <div class="horse-name">Spirit</div>
+                            <div class="horse-stats">Odds: 7/2</div>
                         </div>
                     </div>
                 </div>
@@ -1402,6 +1721,10 @@
                         <div class="race-lane">
                             <div class="lane-number">4</div>
                             <div class="horse-runner" id="horse4">🦄</div>
+                        </div>
+                        <div class="race-lane">
+                            <div class="lane-number">5</div>
+                            <div class="horse-runner" id="horse5">🎠</div>
                         </div>
                     </div>
 
@@ -3206,7 +3529,7 @@
         let selectedHorseNumber = null;
         let raceInProgress = false;
         let horseRacingUnlocked = false;
-        const horseNames = ['Thunder', 'Lightning', 'Storm', 'Blaze'];
+        const horseNames = ['Thunder', 'Lightning', 'Storm', 'Blaze', 'Spirit'];
 
         function selectHorse(horseNumber) {
             if (raceInProgress) return;
@@ -3230,23 +3553,36 @@
 
         function startRace() {
             raceInProgress = true;
-            const horses = [1, 2, 3, 4];
+            const horses = [1, 2, 3, 4, 5];
             const horseElements = horses.map(h => document.getElementById(`horse${h}`));
-            const positions = [50, 50, 50, 50]; // Starting positions
-            const finishLine = window.innerWidth > 768 ? 850 : 450; // Responsive finish line
+
+            // Responsive starting positions and finish line based on screen width
+            let startPos, finishLine;
+            if (window.innerWidth <= 480) {
+                startPos = 30;
+                finishLine = 250; // Small mobile
+            } else if (window.innerWidth <= 768) {
+                startPos = 35;
+                finishLine = 400; // Tablet/mobile
+            } else {
+                startPos = 50;
+                finishLine = 850; // Desktop
+            }
+
+            const positions = [startPos, startPos, startPos, startPos, startPos];
             let winner = null;
 
             // Add racing animation class
             horseElements.forEach(el => el.classList.add('racing'));
 
-            // Race animation
+            // Race animation (slower for excitement)
             const raceInterval = setInterval(() => {
                 let raceFinished = false;
 
                 horses.forEach((horseNum, index) => {
                     if (positions[index] < finishLine) {
-                        // Random speed for each horse (with slight randomness)
-                        const speed = Math.random() * 15 + 8;
+                        // Slower, more varied speed for excitement
+                        const speed = Math.random() * 8 + 4;
                         positions[index] += speed;
                         horseElements[index].style.left = positions[index] + 'px';
 
@@ -3264,7 +3600,7 @@
                     horseElements.forEach(el => el.classList.remove('racing'));
                     endRace(winner);
                 }
-            }, 100);
+            }, 150);
         }
 
         function endRace(winner) {
@@ -3302,9 +3638,18 @@
             selectedHorseNumber = null;
             raceInProgress = false;
 
-            // Reset positions
-            [1, 2, 3, 4].forEach(h => {
-                document.getElementById(`horse${h}`).style.left = '50px';
+            // Reset positions (responsive)
+            let resetPos;
+            if (window.innerWidth <= 480) {
+                resetPos = '30px';
+            } else if (window.innerWidth <= 768) {
+                resetPos = '35px';
+            } else {
+                resetPos = '50px';
+            }
+
+            [1, 2, 3, 4, 5].forEach(h => {
+                document.getElementById(`horse${h}`).style.left = resetPos;
             });
 
             // Show selection screen again
