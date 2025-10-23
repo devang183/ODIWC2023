@@ -519,6 +519,24 @@
             animation: slideDown 0.3s ease-out;
             display: flex;
             flex-direction: column;
+            position: relative;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .modal-content.swipe-left {
+            animation: swipeOutLeft 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .modal-content.swipe-right {
+            animation: swipeOutRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .modal-content.swipe-in-left {
+            animation: swipeInLeft 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .modal-content.swipe-in-right {
+            animation: swipeInRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         @keyframes slideDown {
@@ -529,6 +547,50 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @keyframes swipeOutLeft {
+            0% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes swipeOutRight {
+            0% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes swipeInLeft {
+            0% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes swipeInRight {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
             }
         }
 
@@ -2532,6 +2594,10 @@
             return flags[teamName.trim()] || '🏏';
         }
 
+        // Global variables for player navigation
+        let currentPlayersList = [];
+        let currentPlayerIndex = -1;
+
         async function loadPlayers() {
             const team = document.getElementById('teamFilter').value;
             const role = document.getElementById('roleFilter').value;
@@ -2547,11 +2613,14 @@
                 // Sort players by name for alphabet slider
                 players.sort((a, b) => a.player_name.localeCompare(b.player_name));
 
+                // Store players list globally for modal navigation
+                currentPlayersList = players;
+
                 const content = document.getElementById('playersContent');
                 content.innerHTML = players.map((player, index) => {
                     const firstLetter = player.player_name.charAt(0).toUpperCase();
                     return `
-                    <div class="player-card" data-letter="${firstLetter}" data-index="${index}" onclick="openPlayerModal('${player.player_name}', '${player.team_name}', '${player.playingRole}')">
+                    <div class="player-card" data-letter="${firstLetter}" data-index="${index}" onclick="openPlayerModalByIndex(${index})">
                         <div class="player-name">
                             <span class="country-flag">${getCountryFlag(player.team_name)}</span>
                             ${player.player_name}
@@ -2570,6 +2639,22 @@
             } catch (error) {
                 console.error('Error loading players:', error);
             }
+        }
+
+        function openPlayerModalByIndex(index) {
+            if (index < 0 || index >= currentPlayersList.length) return;
+
+            currentPlayerIndex = index;
+            const player = currentPlayersList[index];
+            openPlayerModal(player.player_name, player.team_name, player.playingRole);
+        }
+
+        function navigateToNextPlayer() {
+            navigateToNextPlayerWithAnimation('left');
+        }
+
+        function navigateToPreviousPlayer() {
+            navigateToPreviousPlayerWithAnimation('right');
         }
 
         function initAlphabetSlider(players) {
@@ -3203,6 +3288,12 @@
                 // Open modal
                 document.getElementById('playerModal').classList.add('active');
 
+                // Initialize swipe navigation (only once)
+                if (!window.playerModalSwipeInitialized) {
+                    initPlayerModalSwipe();
+                    window.playerModalSwipeInitialized = true;
+                }
+
                 // Fetch player performance
                 const url = `${API_BASE}/player/performance/${encodeURIComponent(playerName)}`;
                 console.log('Fetching player data from:', url);
@@ -3354,6 +3445,143 @@
 
         function closePlayerModal() {
             document.getElementById('playerModal').classList.remove('active');
+        }
+
+        function initPlayerModalSwipe() {
+            const modal = document.getElementById('playerModal');
+            const modalContent = modal.querySelector('.modal-content');
+
+            let touchStartX = 0;
+            let touchEndX = 0;
+            let touchStartY = 0;
+            let touchEndY = 0;
+            let touchCurrentX = 0;
+            let isSwiping = false;
+
+            modalContent.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+                touchCurrentX = touchStartX;
+                isSwiping = false;
+
+                // Remove any existing animation classes
+                modalContent.classList.remove('swipe-left', 'swipe-right', 'swipe-in-left', 'swipe-in-right');
+            }, { passive: true });
+
+            modalContent.addEventListener('touchmove', (e) => {
+                if (!isSwiping) {
+                    touchCurrentX = e.changedTouches[0].screenX;
+                    const currentY = e.changedTouches[0].screenY;
+                    const deltaX = touchCurrentX - touchStartX;
+                    const deltaY = currentY - touchStartY;
+
+                    // Determine if this is a horizontal swipe
+                    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+                        isSwiping = true;
+                    }
+                }
+
+                if (isSwiping) {
+                    const deltaX = touchCurrentX - touchStartX;
+                    const scrollTop = modalContent.querySelector('.modal-body').scrollTop;
+
+                    // Only apply transform if not scrolling vertically
+                    if (scrollTop === 0 || Math.abs(deltaX) > 30) {
+                        // Apply real-time transform with resistance
+                        const resistance = 0.5; // Add some resistance for natural feel
+                        modalContent.style.transform = `translateX(${deltaX * resistance}px)`;
+                        modalContent.style.transition = 'none';
+                    }
+                }
+            }, { passive: true });
+
+            modalContent.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                touchEndY = e.changedTouches[0].screenY;
+
+                // Reset transform
+                modalContent.style.transform = '';
+                modalContent.style.transition = '';
+
+                if (isSwiping) {
+                    handleSwipeGesture();
+                }
+
+                isSwiping = false;
+            }, { passive: true });
+
+            function handleSwipeGesture() {
+                const swipeDistanceX = touchEndX - touchStartX;
+                const swipeDistanceY = touchEndY - touchStartY;
+
+                // Check if horizontal swipe is dominant (not vertical scroll)
+                if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY)) {
+                    // Minimum swipe distance threshold (80px for smoother feel)
+                    if (Math.abs(swipeDistanceX) > 80) {
+                        if (swipeDistanceX > 0) {
+                            // Swipe right - go to previous player
+                            navigateToPreviousPlayerWithAnimation('right');
+                        } else {
+                            // Swipe left - go to next player
+                            navigateToNextPlayerWithAnimation('left');
+                        }
+                    }
+                }
+            }
+        }
+
+        function navigateToNextPlayerWithAnimation(direction) {
+            if (currentPlayersList.length === 0) return;
+
+            const modalContent = document.querySelector('#playerModal .modal-content');
+
+            // Add exit animation
+            modalContent.classList.add('swipe-left');
+
+            setTimeout(() => {
+                // Loop to the beginning if at the end
+                currentPlayerIndex = (currentPlayerIndex + 1) % currentPlayersList.length;
+                const player = currentPlayersList[currentPlayerIndex];
+
+                // Remove exit animation and add entrance animation
+                modalContent.classList.remove('swipe-left');
+                modalContent.classList.add('swipe-in-left');
+
+                // Load new player content
+                openPlayerModal(player.player_name, player.team_name, player.playingRole);
+
+                // Remove entrance animation after it completes
+                setTimeout(() => {
+                    modalContent.classList.remove('swipe-in-left');
+                }, 300);
+            }, 300);
+        }
+
+        function navigateToPreviousPlayerWithAnimation(direction) {
+            if (currentPlayersList.length === 0) return;
+
+            const modalContent = document.querySelector('#playerModal .modal-content');
+
+            // Add exit animation
+            modalContent.classList.add('swipe-right');
+
+            setTimeout(() => {
+                // Loop to the end if at the beginning
+                currentPlayerIndex = (currentPlayerIndex - 1 + currentPlayersList.length) % currentPlayersList.length;
+                const player = currentPlayersList[currentPlayerIndex];
+
+                // Remove exit animation and add entrance animation
+                modalContent.classList.remove('swipe-right');
+                modalContent.classList.add('swipe-in-right');
+
+                // Load new player content
+                openPlayerModal(player.player_name, player.team_name, player.playingRole);
+
+                // Remove entrance animation after it completes
+                setTimeout(() => {
+                    modalContent.classList.remove('swipe-in-right');
+                }, 300);
+            }, 300);
         }
 
         function switchPerformanceTab(tabName) {
