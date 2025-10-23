@@ -353,6 +353,108 @@
             background: linear-gradient(135deg, #E73493 0%, #36256E 100%);
         }
 
+        /* Alphabet Slider Styles */
+        .alphabet-slider {
+            display: none; /* Hidden by default, shown on mobile */
+            margin-top: 20px;
+            padding: 20px 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .alphabet-track {
+            position: relative;
+            padding: 15px 20px;
+        }
+
+        .alphabet-letters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 10px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .alphabet-letters::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .alphabet-letters::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 2px;
+        }
+
+        .alphabet-letters::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
+            border-radius: 2px;
+        }
+
+        .alphabet-letter {
+            flex-shrink: 0;
+            min-width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #666;
+            background: #f5f5f5;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+            -webkit-user-select: none;
+            border: 2px solid transparent;
+        }
+
+        .alphabet-letter.active {
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(54, 37, 110, 0.4);
+        }
+
+        .alphabet-letter.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .alphabet-letter:not(.disabled):hover {
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .alphabet-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(54, 37, 110, 0.95);
+            color: white;
+            font-size: 60px;
+            font-weight: 700;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 9999;
+        }
+
+        .alphabet-indicator.visible {
+            opacity: 1;
+        }
+
         .player-name {
             font-size: 1.2em;
             font-weight: 600;
@@ -1218,6 +1320,11 @@
                 min-width: 75%;
                 scroll-snap-align: start;
             }
+
+            /* Show alphabet slider on mobile */
+            .alphabet-slider {
+                display: block;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1297,6 +1404,17 @@
                 flex: 0 0 85%;
                 min-width: 85%;
                 scroll-snap-align: start;
+            }
+
+            /* Show alphabet slider on mobile */
+            .alphabet-slider {
+                display: block;
+            }
+
+            .alphabet-letter {
+                min-width: 30px;
+                height: 30px;
+                font-size: 12px;
             }
 
             .modal-content {
@@ -2140,6 +2258,12 @@
                 </select>
             </div>
             <div id="playersContent"></div>
+            <!-- A-Z Alphabet Slider -->
+            <div class="alphabet-slider" id="alphabetSlider">
+                <div class="alphabet-track">
+                    <div class="alphabet-letters" id="alphabetLetters"></div>
+                </div>
+            </div>
         </div>
 
         <div id="matches" class="content-section">
@@ -2187,6 +2311,9 @@
             <div id="momentsContent" class="moments-grid"></div>
         </div>
     </div>
+
+    <!-- Alphabet Indicator -->
+    <div class="alphabet-indicator" id="alphabetIndicator"></div>
 
     <!-- Player Performance Modal -->
     <div id="playerModal" class="modal">
@@ -2408,18 +2535,23 @@
         async function loadPlayers() {
             const team = document.getElementById('teamFilter').value;
             const role = document.getElementById('roleFilter').value;
-            
+
             try {
                 const params = new URLSearchParams();
                 if (team) params.append('team', team);
                 if (role) params.append('role', role);
-                
+
                 const response = await fetch(`${API_BASE}/players?${params}`);
                 const players = await response.json();
-                
+
+                // Sort players by name for alphabet slider
+                players.sort((a, b) => a.player_name.localeCompare(b.player_name));
+
                 const content = document.getElementById('playersContent');
-                content.innerHTML = players.map(player => `
-                    <div class="player-card" onclick="openPlayerModal('${player.player_name}', '${player.team_name}', '${player.playingRole}')">
+                content.innerHTML = players.map((player, index) => {
+                    const firstLetter = player.player_name.charAt(0).toUpperCase();
+                    return `
+                    <div class="player-card" data-letter="${firstLetter}" data-index="${index}" onclick="openPlayerModal('${player.player_name}', '${player.team_name}', '${player.playingRole}')">
                         <div class="player-name">
                             <span class="country-flag">${getCountryFlag(player.team_name)}</span>
                             ${player.player_name}
@@ -2431,9 +2563,140 @@
                             <strong>Bowling:</strong> ${player.bowlingStyle || 'N/A'}
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
+
+                // Initialize alphabet slider
+                initAlphabetSlider(players);
             } catch (error) {
                 console.error('Error loading players:', error);
+            }
+        }
+
+        function initAlphabetSlider(players) {
+            // Get available letters from players
+            const availableLetters = new Set();
+            players.forEach(player => {
+                const firstLetter = player.player_name.charAt(0).toUpperCase();
+                availableLetters.add(firstLetter);
+            });
+
+            // Create A-Z letters
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            const alphabetLettersContainer = document.getElementById('alphabetLetters');
+
+            alphabetLettersContainer.innerHTML = alphabet.map(letter => {
+                const isAvailable = availableLetters.has(letter);
+                return `<div class="alphabet-letter ${!isAvailable ? 'disabled' : ''}" data-letter="${letter}">${letter}</div>`;
+            }).join('');
+
+            // Add click and touch events for alphabet navigation
+            const letterElements = alphabetLettersContainer.querySelectorAll('.alphabet-letter:not(.disabled)');
+            letterElements.forEach(letterEl => {
+                letterEl.addEventListener('click', () => scrollToLetter(letterEl.dataset.letter));
+                letterEl.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    scrollToLetter(letterEl.dataset.letter);
+                });
+            });
+
+            // Add swipe navigation on alphabet bar
+            let isSliding = false;
+            alphabetLettersContainer.addEventListener('touchstart', () => { isSliding = true; });
+            alphabetLettersContainer.addEventListener('touchend', () => {
+                isSliding = false;
+                hideAlphabetIndicator();
+            });
+            alphabetLettersContainer.addEventListener('touchmove', (e) => {
+                if (isSliding) {
+                    const touch = e.touches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (element && element.classList.contains('alphabet-letter') && !element.classList.contains('disabled')) {
+                        scrollToLetter(element.dataset.letter);
+                    }
+                }
+            });
+
+            // Add scroll listener to player cards to update active letter
+            const playersContent = document.getElementById('playersContent');
+            let scrollTimeout;
+            playersContent.addEventListener('scroll', () => {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    updateActiveLetter();
+                }, 100);
+            });
+        }
+
+        function scrollToLetter(letter) {
+            const playersContent = document.getElementById('playersContent');
+            const targetCard = playersContent.querySelector(`[data-letter="${letter}"]`);
+
+            if (targetCard) {
+                // Scroll to the card
+                targetCard.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+
+                // Show alphabet indicator
+                showAlphabetIndicator(letter);
+
+                // Highlight active letter
+                document.querySelectorAll('.alphabet-letter').forEach(el => el.classList.remove('active'));
+                document.querySelector(`.alphabet-letter[data-letter="${letter}"]`)?.classList.add('active');
+            }
+        }
+
+        function showAlphabetIndicator(letter) {
+            const indicator = document.getElementById('alphabetIndicator');
+            indicator.textContent = letter;
+            indicator.classList.add('visible');
+
+            // Auto-hide after 1 second
+            clearTimeout(window.alphabetIndicatorTimeout);
+            window.alphabetIndicatorTimeout = setTimeout(() => {
+                hideAlphabetIndicator();
+            }, 1000);
+        }
+
+        function hideAlphabetIndicator() {
+            const indicator = document.getElementById('alphabetIndicator');
+            indicator.classList.remove('visible');
+        }
+
+        function updateActiveLetter() {
+            const playersContent = document.getElementById('playersContent');
+            const playerCards = playersContent.querySelectorAll('.player-card');
+
+            if (playerCards.length === 0) return;
+
+            // Find the card that is most visible in the viewport
+            let mostVisibleCard = null;
+            let maxVisibility = 0;
+
+            playerCards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const containerRect = playersContent.getBoundingClientRect();
+
+                // Calculate how much of the card is visible within the container
+                const visibleWidth = Math.min(rect.right, containerRect.right) - Math.max(rect.left, containerRect.left);
+                const visibility = visibleWidth / rect.width;
+
+                if (visibility > maxVisibility) {
+                    maxVisibility = visibility;
+                    mostVisibleCard = card;
+                }
+            });
+
+            if (mostVisibleCard) {
+                const letter = mostVisibleCard.dataset.letter;
+
+                // Update active letter in alphabet slider
+                document.querySelectorAll('.alphabet-letter').forEach(el => el.classList.remove('active'));
+                const activeLetter = document.querySelector(`.alphabet-letter[data-letter="${letter}"]`);
+                if (activeLetter) {
+                    activeLetter.classList.add('active');
+
+                    // Scroll the alphabet slider to show the active letter
+                    activeLetter.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
             }
         }
 
