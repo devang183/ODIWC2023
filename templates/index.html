@@ -178,6 +178,7 @@
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
+            text-align: center;
         }
 
         .stat-card:hover {
@@ -333,6 +334,25 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
         }
 
+        /* Custom scrollbar for players section */
+        #playersContent::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        #playersContent::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        #playersContent::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
+            border-radius: 10px;
+        }
+
+        #playersContent::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #E73493 0%, #36256E 100%);
+        }
+
         .player-name {
             font-size: 1.2em;
             font-weight: 600;
@@ -451,6 +471,38 @@
 
         .player-info-text {
             flex: 1;
+        }
+
+        .player-info-text::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .player-info-text::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .player-info-text::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .player-info-text::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .player-description::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .player-description::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .player-description::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
         }
 
         .player-image {
@@ -994,25 +1046,307 @@
             margin-top: 5px;
         }
 
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+
             h1 {
                 font-size: 1.8em;
+                margin-bottom: 5px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p {
+                font-size: 0.95em;
+            }
+
+            .search-container {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .search-box {
+                gap: 10px;
             }
 
             .search-input {
                 min-width: 100%;
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                width: 100%;
             }
 
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 10px 8px;
+            }
+
+            .stat-value {
+                font-size: 1.4em;
+            }
+
+            .stat-label {
+                font-size: 0.7em;
             }
 
             .chart-container {
                 height: 300px;
+                padding: 15px;
             }
 
             .moments-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .moment-card {
+                padding: 15px;
+            }
+
+            .tab-buttons {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 13px;
+                flex: 1 1 calc(50% - 5px);
+            }
+
+            .modal-content {
+                width: 95%;
+                max-width: 95%;
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+            .modal-header {
+                padding: 15px;
+                max-height: 50vh;
+                overflow-y: auto;
+            }
+
+            .modal-header h2 {
+                font-size: 1.3em;
+            }
+
+            .player-header-content {
+                flex-direction: row;
+                gap: 12px;
+            }
+
+            .player-info-text {
+                flex: 1;
+                min-width: 0;
+                max-height: 35vh;
+                overflow-y: auto;
+                padding-right: 5px;
+            }
+
+            .player-description {
+                font-size: 0.75em;
+                margin-top: 8px;
+                max-height: 15vh;
+                overflow-y: auto;
+            }
+
+            .player-image {
+                width: 80px;
+                height: 80px;
+                border-width: 3px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .performance-container {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 8px 5px;
+            }
+
+            /* Make players section horizontally scrollable on mobile */
+            #playersContent {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                gap: 15px;
+                padding-bottom: 15px;
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+                scroll-behavior: smooth;
+            }
+
+            #playersContent .player-card {
+                flex: 0 0 75%;
+                min-width: 75%;
+                scroll-snap-align: start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+
+            header {
+                padding: 15px 10px;
+            }
+
+            .container {
+                padding: 8px;
+            }
+
+            .search-container {
+                padding: 12px;
+            }
+
+            .search-input {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+
+            .stat-card {
+                padding: 8px 4px;
+            }
+
+            .stat-value {
+                font-size: 1.2em;
+            }
+
+            .stat-label {
+                font-size: 0.65em;
+                word-break: break-word;
+            }
+
+            .chart-container {
+                height: 250px;
+                padding: 12px;
+            }
+
+            .tab-button {
+                padding: 8px 12px;
+                font-size: 12px;
+                flex: 1 1 100%;
+            }
+
+            /* Make players section horizontally scrollable on mobile */
+            #playersContent {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                gap: 12px;
+                padding-bottom: 15px;
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+                scroll-behavior: smooth;
+            }
+
+            #playersContent .player-card {
+                flex: 0 0 85%;
+                min-width: 85%;
+                scroll-snap-align: start;
+            }
+
+            .modal-content {
+                width: 98%;
+                margin: 10px auto;
+                padding: 10px;
+            }
+
+            .modal-header {
+                padding: 12px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.1em;
+            }
+
+            .player-header-content {
+                gap: 10px;
+            }
+
+            .player-info-text {
+                max-height: 30vh;
+            }
+
+            .player-description {
+                font-size: 0.7em;
+                margin-top: 6px;
+                max-height: 12vh;
+            }
+
+            .player-image {
+                width: 60px;
+                height: 60px;
+                border-width: 2px;
+            }
+
+            .player-meta {
+                font-size: 0.75em;
+            }
+
+            .close {
+                font-size: 28px;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            th, td {
+                padding: 6px 3px;
             }
         }
 
@@ -2748,10 +3082,6 @@
                             <div class="stat-item">
                                 <div class="label">Economy</div>
                                 <div class="value">${stat.Overs > 0 ? (stat.Runs / stat.Overs).toFixed(2) : '0.00'}</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="label">Dots</div>
-                                <div class="value">${stat.Dots || 0}</div>
                             </div>
                         </div>
                     </div>
