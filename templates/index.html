@@ -455,6 +455,213 @@
             opacity: 1;
         }
 
+        /* All Players Modal Styles */
+        .team-section {
+            margin-bottom: 40px;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #36256E 0%, #667EEA 100%);
+            border-radius: 15px;
+            margin-bottom: 0;
+            box-shadow: 0 8px 20px rgba(54, 37, 110, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .team-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(54, 37, 110, 0.4);
+        }
+
+        .team-header:active {
+            transform: translateY(0);
+        }
+
+        .team-flag {
+            font-size: 3em;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+        }
+
+        .team-title {
+            flex: 1;
+        }
+
+        .team-title h3 {
+            margin: 0;
+            color: white;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .team-title p {
+            margin: 5px 0 0 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1em;
+        }
+
+        .collapse-icon {
+            font-size: 1.5em;
+            color: white;
+            transition: transform 0.3s ease;
+            font-weight: 700;
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .players-container {
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 10px;
+            transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+
+        .players-container.collapsed {
+            max-height: 0;
+            padding: 0 10px;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .players-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .players-container::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .players-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
+            border-radius: 4px;
+        }
+
+        .players-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #E73493 0%, #36256E 100%);
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .player-item {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            border: 2px solid #f0f0f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #36256E 0%, #E73493 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .player-item:hover {
+            border-color: #36256E;
+            box-shadow: 0 8px 25px rgba(54, 37, 110, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .player-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .player-item-name {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #36256E;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-badge.batsman {
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: white;
+        }
+
+        .role-badge.bowler {
+            background: linear-gradient(135deg, #E73493 0%, #FF6B9D 100%);
+            color: white;
+        }
+
+        .role-badge.allrounder {
+            background: linear-gradient(135deg, #F093FB 0%, #F5576C 100%);
+            color: white;
+        }
+
+        .role-badge.wicketkeeper {
+            background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%);
+            color: white;
+        }
+
+        .player-item-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .player-item-details span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .player-item-details span::before {
+            content: '•';
+            color: #36256E;
+            font-weight: 700;
+        }
+
         .player-name {
             font-size: 1.2em;
             font-weight: 600;
@@ -1387,6 +1594,45 @@
             .alphabet-slider {
                 display: block;
             }
+
+            /* All Players Modal - Mobile */
+            .team-header {
+                padding: 15px;
+            }
+
+            .team-flag {
+                font-size: 2em;
+            }
+
+            .team-title h3 {
+                font-size: 1.4em;
+            }
+
+            .team-title p {
+                font-size: 0.9em;
+            }
+
+            .players-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .player-item {
+                padding: 15px;
+            }
+
+            .player-item-name {
+                font-size: 1em;
+                flex-wrap: wrap;
+            }
+
+            .players-container {
+                max-height: 500px;
+            }
+
+            .collapse-icon {
+                font-size: 1.3em;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2278,7 +2524,7 @@
                 <div class="stat-value" id="totalMatches">-</div>
                 <div class="stat-label">Total Matches</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="openAllPlayersModal()" style="cursor: pointer;">
                 <div class="stat-value" id="totalPlayers">-</div>
                 <div class="stat-label">Total Players</div>
             </div>
@@ -2414,6 +2660,22 @@
             </div>
             <div class="modal-body">
                 <div id="matchScorecardContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Players Modal -->
+    <div id="allPlayersModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #36256E 0%, #667EEA 50%, #E73493 100%);">
+                <div>
+                    <h2 style="margin: 0; font-size: 2em; font-weight: 700;">🏆 ODI World Cup 2023 Players</h2>
+                    <p style="margin: 10px 0 0 0; opacity: 0.95; font-size: 1.1em;">All participating teams and their squads</p>
+                </div>
+                <span class="close" onclick="closeAllPlayersModal()">&times;</span>
+            </div>
+            <div class="modal-body" style="padding: 30px;">
+                <div id="allPlayersContent"></div>
             </div>
         </div>
     </div>
@@ -3935,16 +4197,124 @@
             document.getElementById('matchModal').classList.remove('active');
         }
 
+        // All Players Modal Functions
+        async function openAllPlayersModal() {
+            try {
+                document.getElementById('allPlayersModal').classList.add('active');
+                document.getElementById('allPlayersContent').innerHTML = '<div style="text-align: center; padding: 40px;"><div class="loading">Loading all players...</div></div>';
+
+                const response = await fetch(`${API_BASE}/players`);
+                const players = await response.json();
+
+                // Group players by team
+                const teamGroups = {};
+                players.forEach(player => {
+                    if (!teamGroups[player.team_name]) {
+                        teamGroups[player.team_name] = [];
+                    }
+                    teamGroups[player.team_name].push(player);
+                });
+
+                // Get team flags
+                const teamFlags = {
+                    'India': '🇮🇳',
+                    'Australia': '🇦🇺',
+                    'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+                    'Pakistan': '🇵🇰',
+                    'New Zealand': '🇳🇿',
+                    'South Africa': '🇿🇦',
+                    'Sri Lanka': '🇱🇰',
+                    'Bangladesh': '🇧🇩',
+                    'Afghanistan': '🇦🇫',
+                    'Netherlands': '🇳🇱'
+                };
+
+                // Sort teams alphabetically
+                const sortedTeams = Object.keys(teamGroups).sort();
+
+                // Generate HTML for each team section
+                const html = sortedTeams.map((teamName, index) => {
+                    const teamPlayers = teamGroups[teamName];
+                    const flag = teamFlags[teamName] || '🏏';
+
+                    // Sort players by role and name
+                    teamPlayers.sort((a, b) => {
+                        const roleOrder = { 'Batsman': 1, 'Allrounder': 2, 'Bowler': 3, 'WK-Batsman': 4 };
+                        const roleA = roleOrder[a.playingRole] || 5;
+                        const roleB = roleOrder[b.playingRole] || 5;
+                        if (roleA !== roleB) return roleA - roleB;
+                        return a.player_name.localeCompare(b.player_name);
+                    });
+
+                    return `
+                        <div class="team-section">
+                            <div class="team-header" onclick="toggleTeamSection(${index})">
+                                <div class="team-flag">${flag}</div>
+                                <div class="team-title">
+                                    <h3>${teamName}</h3>
+                                    <p>${teamPlayers.length} Players</p>
+                                </div>
+                                <div class="collapse-icon" id="collapseIcon${index}">▼</div>
+                            </div>
+                            <div class="players-container" id="playersContainer${index}">
+                                <div class="players-grid">
+                                    ${teamPlayers.map(player => {
+                                        const roleClass = player.playingRole.toLowerCase().replace('-', '').replace(' ', '');
+                                        return `
+                                            <div class="player-item" onclick="closeAllPlayersModal(); openPlayerModalByName('${player.player_name.replace(/'/g, "\\'")}');">
+                                                <div class="player-item-name">
+                                                    ${player.player_name}
+                                                    <span class="role-badge ${roleClass}">${player.playingRole}</span>
+                                                </div>
+                                                <div class="player-item-details">
+                                                    <span>Batting: ${player.battingStyle}</span>
+                                                    ${player.bowlingStyle && player.bowlingStyle !== 'null' ? `<span>Bowling: ${player.bowlingStyle}</span>` : ''}
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('allPlayersContent').innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading all players:', error);
+                document.getElementById('allPlayersContent').innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">Error loading players</div>';
+            }
+        }
+
+        function closeAllPlayersModal() {
+            document.getElementById('allPlayersModal').classList.remove('active');
+        }
+
+        function toggleTeamSection(index) {
+            const container = document.getElementById(`playersContainer${index}`);
+            const icon = document.getElementById(`collapseIcon${index}`);
+
+            if (container && icon) {
+                container.classList.toggle('collapsed');
+                icon.classList.toggle('collapsed');
+            }
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             const playerModal = document.getElementById('playerModal');
             const matchModal = document.getElementById('matchModal');
+            const allPlayersModal = document.getElementById('allPlayersModal');
 
             if (event.target === playerModal) {
                 closePlayerModal();
             }
             if (event.target === matchModal) {
                 closeMatchModal();
+            }
+            if (event.target === allPlayersModal) {
+                closeAllPlayersModal();
             }
         }
 
