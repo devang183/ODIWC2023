@@ -295,6 +295,16 @@
             position: relative;
             height: 400px;
             margin: 30px 0;
+            cursor: pointer;
+        }
+
+        .chart-container canvas {
+            cursor: pointer !important;
+        }
+
+        .chart-container:hover {
+            box-shadow: 0 4px 15px rgba(54, 37, 110, 0.15);
+            border-radius: 12px;
         }
 
         .filters {
@@ -3124,7 +3134,9 @@
                                 backgroundColor: 'rgba(54, 37, 110, 0.8)',
                                 borderColor: 'rgba(54, 37, 110, 1)',
                                 borderWidth: 2,
-                                yAxisID: 'y'
+                                yAxisID: 'y',
+                                hoverBackgroundColor: 'rgba(54, 37, 110, 1)',
+                                hoverBorderWidth: 3
                             },
                             {
                                 label: 'Fours (4s)',
@@ -3132,7 +3144,9 @@
                                 backgroundColor: 'rgba(102, 126, 234, 0.8)',
                                 borderColor: 'rgba(102, 126, 234, 1)',
                                 borderWidth: 2,
-                                yAxisID: 'y1'
+                                yAxisID: 'y1',
+                                hoverBackgroundColor: 'rgba(102, 126, 234, 1)',
+                                hoverBorderWidth: 3
                             },
                             {
                                 label: 'Sixes (6s)',
@@ -3140,7 +3154,9 @@
                                 backgroundColor: 'rgba(231, 52, 147, 0.8)',
                                 borderColor: 'rgba(231, 52, 147, 1)',
                                 borderWidth: 2,
-                                yAxisID: 'y1'
+                                yAxisID: 'y1',
+                                hoverBackgroundColor: 'rgba(231, 52, 147, 1)',
+                                hoverBorderWidth: 3
                             },
                             {
                                 label: 'Strike Rate',
@@ -3148,7 +3164,9 @@
                                 backgroundColor: 'rgba(255, 193, 7, 0.8)',
                                 borderColor: 'rgba(255, 193, 7, 1)',
                                 borderWidth: 2,
-                                yAxisID: 'y1'
+                                yAxisID: 'y1',
+                                hoverBackgroundColor: 'rgba(255, 193, 7, 1)',
+                                hoverBorderWidth: 3
                             }
                         ]
                     },
@@ -3158,6 +3176,39 @@
                         interaction: {
                             mode: 'index',
                             intersect: false
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        return `🏏 ${context[0].label}`;
+                                    },
+                                    afterTitle: function(context) {
+                                        const index = context[0].dataIndex;
+                                        const player = data[index];
+                                        return `${getCountryFlag(player.team)} ${player.team} • ${player.matches} Matches`;
+                                    },
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += context.parsed.y;
+                                        return label;
+                                    },
+                                    footer: function(context) {
+                                        return '\n💡 Click to view player details';
+                                    }
+                                },
+                                backgroundColor: 'rgba(54, 37, 110, 0.95)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                footerColor: '#FFD700',
+                                padding: 12,
+                                displayColors: true,
+                                borderColor: '#E73493',
+                                borderWidth: 2
+                            }
                         },
                         scales: {
                             y: {
@@ -3187,7 +3238,10 @@
                         onClick: (event, activeElements) => {
                             if (activeElements.length > 0) {
                                 const index = activeElements[0].index;
+                                const playerName = data[index].batsman;
                                 highlightBatsmanRow(index);
+                                // Open player modal on chart click
+                                openPlayerModalByName(playerName);
                             }
                         }
                     }
@@ -3268,7 +3322,9 @@
                                 backgroundColor: 'rgba(54, 37, 110, 0.8)',
                                 borderColor: 'rgba(54, 37, 110, 1)',
                                 borderWidth: 2,
-                                yAxisID: 'y'
+                                yAxisID: 'y',
+                                hoverBackgroundColor: 'rgba(54, 37, 110, 1)',
+                                hoverBorderWidth: 3
                             },
                             {
                                 label: 'Average Economy',
@@ -3276,7 +3332,9 @@
                                 backgroundColor: 'rgba(231, 52, 147, 0.8)',
                                 borderColor: 'rgba(231, 52, 147, 1)',
                                 borderWidth: 2,
-                                yAxisID: 'y1'
+                                yAxisID: 'y1',
+                                hoverBackgroundColor: 'rgba(231, 52, 147, 1)',
+                                hoverBorderWidth: 3
                             },
                             {
                                 label: 'Total Maidens',
@@ -3284,7 +3342,9 @@
                                 backgroundColor: 'rgba(102, 126, 234, 0.8)',
                                 borderColor: 'rgba(102, 126, 234, 1)',
                                 borderWidth: 2,
-                                yAxisID: 'y'
+                                yAxisID: 'y',
+                                hoverBackgroundColor: 'rgba(102, 126, 234, 1)',
+                                hoverBorderWidth: 3
                             }
                         ]
                     },
@@ -3294,6 +3354,45 @@
                         interaction: {
                             mode: 'index',
                             intersect: false
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        return `🎯 ${context[0].label}`;
+                                    },
+                                    afterTitle: function(context) {
+                                        const index = context[0].dataIndex;
+                                        const player = data[index];
+                                        return `${getCountryFlag(player.team)} ${player.team} • ${player.matches} Matches`;
+                                    },
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (label.includes('Economy')) {
+                                            label += context.parsed.y.toFixed(2);
+                                        } else {
+                                            label += context.parsed.y;
+                                        }
+                                        return label;
+                                    },
+                                    footer: function(context) {
+                                        const index = context[0].dataIndex;
+                                        const player = data[index];
+                                        return `\nOvers: ${player.total_overs.toFixed(1)} • Runs: ${player.total_runs}\n💡 Click to view player details`;
+                                    }
+                                },
+                                backgroundColor: 'rgba(54, 37, 110, 0.95)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                footerColor: '#FFD700',
+                                padding: 12,
+                                displayColors: true,
+                                borderColor: '#E73493',
+                                borderWidth: 2
+                            }
                         },
                         scales: {
                             y: {
@@ -3323,7 +3422,10 @@
                         onClick: (event, activeElements) => {
                             if (activeElements.length > 0) {
                                 const index = activeElements[0].index;
+                                const playerName = data[index].bowler;
                                 highlightBowlerRow(index);
+                                // Open player modal on chart click
+                                openPlayerModalByName(playerName);
                             }
                         }
                     }
