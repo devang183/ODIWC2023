@@ -672,6 +672,192 @@
             font-weight: 700;
         }
 
+        /* Player Comparison Styles */
+        .comparison-selection {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .player-selectors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .player-selector-box {
+            position: relative;
+        }
+
+        .player-selector-box label {
+            display: block;
+            font-weight: 600;
+            color: #36256E;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .compare-search-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0f0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .compare-search-input:focus {
+            outline: none;
+            border-color: #667EEA;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .compare-autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667EEA;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .compare-autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .compare-autocomplete-item:hover {
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: white;
+        }
+
+        .compare-autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #comparisonCards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .comparison-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 3px solid;
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comparison-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667EEA 0%, #764BA2 100%);
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .comparison-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .comparison-player-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #36256E;
+        }
+
+        .comparison-player-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .comparison-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .comparison-stat {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #f0f0f0;
+            transition: all 0.2s;
+        }
+
+        .comparison-stat:hover {
+            border-color: #667EEA;
+            transform: scale(1.05);
+        }
+
+        .comparison-stat-label {
+            font-size: 0.85em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .comparison-stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #36256E;
+        }
+
+        .comparison-winner {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 40px;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+            animation: winnerPulse 2s infinite;
+        }
+
+        @keyframes winnerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .comparison-winner h2 {
+            margin: 0;
+            font-size: 2.5em;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
         .player-name {
             font-size: 1.2em;
             font-weight: 600;
@@ -2526,6 +2712,9 @@
                     <div id="autocomplete-list" class="autocomplete-items"></div>
                 </div>
                 <button class="btn" onclick="performSearch()">Search</button>
+                <button class="btn" onclick="openComparisonModal()" style="background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); margin-left: 10px;">
+                    ⚔️ Compare Players
+                </button>
             </div>
         </div>
 
@@ -2686,6 +2875,72 @@
             </div>
             <div class="modal-body" style="padding: 30px;">
                 <div id="allPlayersContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Comparison Modal -->
+    <div id="comparisonModal" class="modal">
+        <div class="modal-content" style="max-width: 1400px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667EEA 0%, #764BA2 50%, #F093FB 100%);">
+                <div>
+                    <h2 style="margin: 0; font-size: 2em; font-weight: 700;">⚔️ Player Comparison Arena</h2>
+                    <p style="margin: 10px 0 0 0; opacity: 0.95; font-size: 1.1em;">Compare up to 3 players side-by-side</p>
+                </div>
+                <span class="close" onclick="closeComparisonModal()">&times;</span>
+            </div>
+            <div class="modal-body" style="padding: 30px;">
+                <!-- Player Selection -->
+                <div class="comparison-selection">
+                    <h3 style="color: #36256E; margin-bottom: 20px;">Select Players to Compare</h3>
+                    <div class="player-selectors">
+                        <div class="player-selector-box">
+                            <label>Player 1</label>
+                            <input type="text" id="comparePlayer1" class="compare-search-input" placeholder="Search player..." oninput="searchComparePlayer(1)">
+                            <div id="compareResults1" class="compare-autocomplete"></div>
+                        </div>
+                        <div class="player-selector-box">
+                            <label>Player 2</label>
+                            <input type="text" id="comparePlayer2" class="compare-search-input" placeholder="Search player..." oninput="searchComparePlayer(2)">
+                            <div id="compareResults2" class="compare-autocomplete"></div>
+                        </div>
+                        <div class="player-selector-box">
+                            <label>Player 3 (Optional)</label>
+                            <input type="text" id="comparePlayer3" class="compare-search-input" placeholder="Search player..." oninput="searchComparePlayer(3)">
+                            <div id="compareResults3" class="compare-autocomplete"></div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="generateComparison()" style="background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); margin-top: 20px; width: 100%; padding: 15px; font-size: 1.1em;">
+                        ⚡ Generate Comparison
+                    </button>
+                </div>
+
+                <!-- Comparison Results -->
+                <div id="comparisonResults" style="display: none; margin-top: 40px;">
+                    <!-- Radar Chart -->
+                    <div class="comparison-section">
+                        <h3 style="color: #36256E; margin-bottom: 20px;">📊 Performance Radar</h3>
+                        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #667EEA;">
+                            <p style="margin: 0; color: #666; font-size: 0.95em;">
+                                <strong>📏 How to read this chart:</strong> Values are shown as percentages relative to the best performer in each category among the selected players.
+                                The player with the highest runs gets 100% in the "Runs" axis, others are scaled proportionally.
+                                Hover over any point to see actual values. For Economy, lower is better (so it's inverted).
+                            </p>
+                        </div>
+                        <div class="chart-container" style="height: 450px;">
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Side-by-Side Stats -->
+                    <div class="comparison-section" style="margin-top: 40px;">
+                        <h3 style="color: #36256E; margin-bottom: 20px;">📈 Detailed Statistics</h3>
+                        <div id="comparisonCards"></div>
+                    </div>
+
+                    <!-- Winner Declaration -->
+                    <div id="comparisonWinner" class="comparison-winner"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -4403,11 +4658,343 @@
             }
         }
 
+        // Player Comparison Functions
+        let comparisonChart = null;
+        let selectedPlayers = [null, null, null];
+        let allPlayersForComparison = [];
+
+        async function openComparisonModal() {
+            document.getElementById('comparisonModal').classList.add('active');
+            document.getElementById('comparisonResults').style.display = 'none';
+
+            // Load all players for search
+            if (allPlayersForComparison.length === 0) {
+                const response = await fetch(`${API_BASE}/players`);
+                allPlayersForComparison = await response.json();
+            }
+
+            // Reset selections
+            document.getElementById('comparePlayer1').value = '';
+            document.getElementById('comparePlayer2').value = '';
+            document.getElementById('comparePlayer3').value = '';
+            selectedPlayers = [null, null, null];
+        }
+
+        function closeComparisonModal() {
+            document.getElementById('comparisonModal').classList.remove('active');
+        }
+
+        function searchComparePlayer(playerNum) {
+            const input = document.getElementById(`comparePlayer${playerNum}`);
+            const resultsDiv = document.getElementById(`compareResults${playerNum}`);
+            const searchTerm = input.value.toLowerCase();
+
+            if (searchTerm.length < 2) {
+                resultsDiv.innerHTML = '';
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            const matches = allPlayersForComparison.filter(player =>
+                player.player_name.toLowerCase().includes(searchTerm)
+            ).slice(0, 8);
+
+            if (matches.length > 0) {
+                resultsDiv.innerHTML = matches.map(player => `
+                    <div class="compare-autocomplete-item" onclick="selectComparePlayer(${playerNum}, '${player.player_name.replace(/'/g, "\\'")}', '${player.team_name}', '${player.playingRole}')">
+                        <strong>${player.player_name}</strong><br>
+                        <small>${getCountryFlag(player.team_name)} ${player.team_name} • ${player.playingRole}</small>
+                    </div>
+                `).join('');
+                resultsDiv.style.display = 'block';
+            } else {
+                resultsDiv.innerHTML = '<div class="compare-autocomplete-item">No players found</div>';
+                resultsDiv.style.display = 'block';
+            }
+        }
+
+        function selectComparePlayer(playerNum, name, team, role) {
+            document.getElementById(`comparePlayer${playerNum}`).value = name;
+            document.getElementById(`compareResults${playerNum}`).style.display = 'none';
+            selectedPlayers[playerNum - 1] = { name, team, role };
+        }
+
+        async function generateComparison() {
+            // Validate at least 2 players selected
+            const validPlayers = selectedPlayers.filter(p => p !== null);
+            if (validPlayers.length < 2) {
+                alert('Please select at least 2 players to compare!');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('comparisonResults').style.display = 'block';
+            document.getElementById('comparisonCards').innerHTML = '<div style="text-align: center; padding: 40px;">Loading comparison...</div>';
+
+            try {
+                // Fetch stats for each selected player
+                const playerStats = await Promise.all(
+                    validPlayers.map(async (player) => {
+                        const response = await fetch(`${API_BASE}/player/performance/${encodeURIComponent(player.name)}`);
+                        const data = await response.json();
+
+                        return {
+                            ...player,
+                            batting: data.batting || [],
+                            bowling: data.bowling || []
+                        };
+                    })
+                );
+
+                // Generate radar chart
+                createComparisonRadarChart(playerStats);
+
+                // Generate stat cards
+                createComparisonCards(playerStats);
+
+                // Determine winner
+                declareWinner(playerStats);
+
+            } catch (error) {
+                console.error('Error generating comparison:', error);
+                document.getElementById('comparisonCards').innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">Error loading comparison</div>';
+            }
+        }
+
+        function createComparisonRadarChart(playerStats) {
+            const ctx = document.getElementById('radarChart');
+            if (comparisonChart) comparisonChart.destroy();
+
+            const colors = [
+                { bg: 'rgba(102, 126, 234, 0.2)', border: 'rgba(102, 126, 234, 1)' },
+                { bg: 'rgba(231, 52, 147, 0.2)', border: 'rgba(231, 52, 147, 1)' },
+                { bg: 'rgba(255, 193, 7, 0.2)', border: 'rgba(255, 193, 7, 1)' }
+            ];
+
+            // Calculate all players' stats first to find max values for relative scaling
+            const allStats = playerStats.map(player => {
+                const totalRuns = player.batting.reduce((sum, match) => sum + (match.Runs || 0), 0);
+                const totalBalls = player.batting.reduce((sum, match) => sum + (match.Balls || 0), 0);
+                const total4s = player.batting.reduce((sum, match) => sum + (match['4s'] || 0), 0);
+                const total6s = player.batting.reduce((sum, match) => sum + (match['6s'] || 0), 0);
+                const strikeRate = totalBalls > 0 ? (totalRuns / totalBalls) * 100 : 0;
+
+                const totalWickets = player.bowling.reduce((sum, match) => sum + (match.Wickets || 0), 0);
+                const totalOvers = player.bowling.reduce((sum, match) => sum + (match.Overs || 0), 0);
+                const bowlingRuns = player.bowling.reduce((sum, match) => sum + (match.Runs || 0), 0);
+                const economy = totalOvers > 0 ? (bowlingRuns / totalOvers) : 0;
+
+                return { totalRuns, strikeRate, total4s, total6s, totalWickets, economy };
+            });
+
+            // Find max values among selected players for relative comparison
+            const maxRuns = Math.max(...allStats.map(s => s.totalRuns), 1);
+            const maxStrikeRate = Math.max(...allStats.map(s => s.strikeRate), 1);
+            const max4s = Math.max(...allStats.map(s => s.total4s), 1);
+            const max6s = Math.max(...allStats.map(s => s.total6s), 1);
+            const maxWickets = Math.max(...allStats.map(s => s.totalWickets), 1);
+            const maxEconomy = Math.max(...allStats.map(s => s.economy), 1);
+
+            const datasets = playerStats.map((player, index) => {
+                const stats = allStats[index];
+
+                // Normalize to 0-100 scale based on max value among compared players
+                // This makes the comparison relative - best player gets 100 in that category
+                return {
+                    label: `${player.name} (${stats.totalRuns}R, ${stats.strikeRate.toFixed(1)}SR, ${stats.totalWickets}W)`,
+                    data: [
+                        (stats.totalRuns / maxRuns) * 100,  // Runs (% of top scorer)
+                        (stats.strikeRate / maxStrikeRate) * 100,  // Strike Rate (% of highest SR)
+                        (stats.total4s / max4s) * 100,  // 4s (% of most 4s)
+                        (stats.total6s / max6s) * 100,  // 6s (% of most 6s)
+                        (stats.totalWickets / maxWickets) * 100,  // Wickets (% of most wickets)
+                        100 - ((stats.economy / maxEconomy) * 100)  // Economy (inverted - lower is better, so flip it)
+                    ],
+                    backgroundColor: colors[index].bg,
+                    borderColor: colors[index].border,
+                    borderWidth: 3,
+                    pointBackgroundColor: colors[index].border,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: colors[index].border,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                };
+            });
+
+            comparisonChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Runs', 'Strike Rate', 'Fours', 'Sixes', 'Wickets', 'Economy'],
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                backdropColor: 'transparent'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const playerIndex = context.datasetIndex;
+                                    const statIndex = context.dataIndex;
+                                    const stats = allStats[playerIndex];
+                                    const label = context.dataset.label.split(' (')[0];
+
+                                    const actualValues = [
+                                        `${stats.totalRuns} Runs`,
+                                        `${stats.strikeRate.toFixed(1)} Strike Rate`,
+                                        `${stats.total4s} Fours`,
+                                        `${stats.total6s} Sixes`,
+                                        `${stats.totalWickets} Wickets`,
+                                        `${stats.economy.toFixed(2)} Economy`
+                                    ];
+
+                                    return `${label}: ${actualValues[statIndex]} (${context.parsed.r.toFixed(1)}% relative)`;
+                                }
+                            },
+                            backgroundColor: 'rgba(54, 37, 110, 0.95)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 12,
+                            borderColor: '#E73493',
+                            borderWidth: 2
+                        }
+                    }
+                }
+            });
+        }
+
+        function createComparisonCards(playerStats) {
+            const colors = ['#667EEA', '#E73493', '#FFA500'];
+
+            const html = playerStats.map((player, index) => {
+                const totalRuns = player.batting.reduce((sum, match) => sum + (match.Runs || 0), 0);
+                const totalBalls = player.batting.reduce((sum, match) => sum + (match.Balls || 0), 0);
+                const total4s = player.batting.reduce((sum, match) => sum + (match['4s'] || 0), 0);
+                const total6s = player.batting.reduce((sum, match) => sum + (match['6s'] || 0), 0);
+                const strikeRate = totalBalls > 0 ? ((totalRuns / totalBalls) * 100).toFixed(2) : '0.00';
+                const average = player.batting.length > 0 ? (totalRuns / player.batting.length).toFixed(2) : '0.00';
+
+                const totalWickets = player.bowling.reduce((sum, match) => sum + (match.Wickets || 0), 0);
+                const totalOvers = player.bowling.reduce((sum, match) => sum + (match.Overs || 0), 0);
+                const bowlingRuns = player.bowling.reduce((sum, match) => sum + (match.Runs || 0), 0);
+                const economy = totalOvers > 0 ? (bowlingRuns / totalOvers).toFixed(2) : '0.00';
+
+                return `
+                    <div class="comparison-card" style="border-color: ${colors[index]};">
+                        <div class="comparison-card-header">
+                            <div>
+                                <div class="comparison-player-name">${player.name}</div>
+                                <div class="comparison-player-meta">
+                                    ${getCountryFlag(player.team)} ${player.team} • ${player.role}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comparison-stats-grid">
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Total Runs</div>
+                                <div class="comparison-stat-value">${totalRuns}</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Strike Rate</div>
+                                <div class="comparison-stat-value">${strikeRate}</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Average</div>
+                                <div class="comparison-stat-value">${average}</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Boundaries</div>
+                                <div class="comparison-stat-value">${total4s + total6s}</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Wickets</div>
+                                <div class="comparison-stat-value">${totalWickets}</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Economy</div>
+                                <div class="comparison-stat-value">${economy}</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Matches</div>
+                                <div class="comparison-stat-value">${player.batting.length}</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Overs Bowled</div>
+                                <div class="comparison-stat-value">${totalOvers.toFixed(1)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('comparisonCards').innerHTML = html;
+        }
+
+        function declareWinner(playerStats) {
+            // Calculate overall score for each player
+            const scores = playerStats.map(player => {
+                const totalRuns = player.batting.reduce((sum, match) => sum + (match.Runs || 0), 0);
+                const totalBalls = player.batting.reduce((sum, match) => sum + (match.Balls || 0), 0);
+                const total4s = player.batting.reduce((sum, match) => sum + (match['4s'] || 0), 0);
+                const total6s = player.batting.reduce((sum, match) => sum + (match['6s'] || 0), 0);
+                const totalWickets = player.bowling.reduce((sum, match) => sum + (match.Wickets || 0), 0);
+
+                // Weighted scoring system
+                const score = totalRuns * 1 + total4s * 2 + total6s * 5 + totalWickets * 20;
+
+                return { player, score };
+            });
+
+            scores.sort((a, b) => b.score - a.score);
+            const winner = scores[0];
+
+            document.getElementById('comparisonWinner').innerHTML = `
+                <h2>🏆 Winner: ${winner.player.name}!</h2>
+                <p style="font-size: 1.3em; color: white; margin-top: 15px;">
+                    Overall Score: ${winner.score.toFixed(0)} points
+                </p>
+                <p style="font-size: 1em; color: rgba(255,255,255,0.9); margin-top: 10px;">
+                    Based on comprehensive analysis of runs, boundaries, and wickets
+                </p>
+            `;
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             const playerModal = document.getElementById('playerModal');
             const matchModal = document.getElementById('matchModal');
             const allPlayersModal = document.getElementById('allPlayersModal');
+            const comparisonModal = document.getElementById('comparisonModal');
 
             if (event.target === playerModal) {
                 closePlayerModal();
@@ -4417,6 +5004,9 @@
             }
             if (event.target === allPlayersModal) {
                 closeAllPlayersModal();
+            }
+            if (event.target === comparisonModal) {
+                closeComparisonModal();
             }
         }
 
